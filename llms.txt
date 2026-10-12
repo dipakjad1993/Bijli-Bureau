@@ -3,7 +3,7 @@
 > Free on-device EV battery SoH lab: sublinear-EFC + plateaued Arrhenius aging,
 > 40 OEM warranty rules, second-life value, resale cert QR (BATTCERTv3 + SOCE). 2W + 4W, India/SEA + global.
 > Backtested vs AVILOO Sep-2026 medians — residuals published, not hidden.
-> Canonical entity: BijliBureau. Contact: support@batteryforensics.in.
+> Canonical entity: BijliBureau. Report: https://github.com/dipakjad1993/Bijli-Bureau/issues.
 > Canonical docs: https://batteryforensics.in/methodology.html
 
 ## Note on AI search (Google 2026)

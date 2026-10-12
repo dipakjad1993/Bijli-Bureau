@@ -121,7 +121,7 @@ used-ev-resale-cert/  us/  us/carb-soh-standard/  soh-index/
 
 - Canonical production domain: `batteryforensics.in` (OG, hreflang, JSON-LD: SoftwareApplication + Organization/sameAs + HowTo + VideoObject + WebPage/speakable + FAQ + Dataset + Product + Breadcrumb). GitHub Pages mirror here is the public demo.
 - `sitemap.xml` 54/54 resolve · `robots.txt` (retrieval-bot allowlist) · `llms.txt` + `llms-full.txt` (LLM/crawler surface) · `og/hero-card.png` ships · `?embed=1` dealer mode · print CSS with 25 mm QR.
-- Deploy checklist: host domain → verify inbox deliverability (`support@batteryforensics.in`, 7-day SLA) → set `BF_DB.ANALYTICS.ga4Id` + GSC + sitemap → set telemetry endpoint → claim YouTube Preferred Source → quarterly recalibration + rebuild.
+- Deploy checklist: host domain → set `BF_DB.ANALYTICS.ga4Id` + GSC + sitemap → set telemetry endpoint → claim YouTube Preferred Source → quarterly recalibration + rebuild. Report issues via [GitHub Issues](https://github.com/dipakjad1993/Bijli-Bureau/issues) (7-day SLA).
 
 ## 🏢 Enterprise surfaces
 
@@ -142,4 +142,4 @@ Supporting evidence only — **not legal advice**. Always demand OEM BMS SoH in 
 
 ---
 
-*Built for owners, dealers (Cars24 / CarMax / OLX), insurers & lenders · BijliBureau · Contact: support@batteryforensics.in · Dataset v2026.16 · verified 2026-10-12 · BNEF Dec-2025 snapshot $108/kWh · AVILOO Sep-2026 500k tests · TPEM Oct-2025 · Ola 2026 · EU 2023/1542 · CARB MY2026*
+*Built for owners, dealers (Cars24 / CarMax / OLX), insurers & lenders · BijliBureau · Dataset v2026.16 · verified 2026-10-12 · BNEF Dec-2025 snapshot $108/kWh · AVILOO Sep-2026 500k tests · TPEM Oct-2025 · Ola 2026 · EU 2023/1542 · CARB MY2026*

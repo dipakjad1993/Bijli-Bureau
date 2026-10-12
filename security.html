@@ -19,10 +19,10 @@
 <tr><td>Headers (prod)</td><td>CSP (default self; scripts self + pinned CDNs; connect self + open.er-api + open-meteo + GA when configured), Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy (camera self only), HSTS on batteryforensics.in. Meta fallbacks ship in index.html for static hosts.</td></tr>
 <tr><td>Evidence integrity</td><td>Every run: SHA-256 over the cert payload + DPPpre JSON, printed in-app + PDF + QR page. Optional detached signature: Ed25519 (CLI, tools/generate-key.js) or ECDSA-P256 (WebCrypto fallback) — public key at <code>/.well-known/bijlibureau-key.json</code> + transparency-log entry. Verify: <code>node tools/verify-signature.js &lt;payload&gt; &lt;sig-b64&gt;</code>. Until a key is configured the UI honestly says "timestamped + SHA-256 hashed" — never "signed".</td></tr>
 <tr><td>Vault</td><td>IndexedDB origin-private; AES-GCM passphrase opt-in for dealers. No passwords server-side (magic-link SSO-lite for fleets — see tools/dealer-auth.js).</td></tr>
-<tr><td>Report a vulnerability</td><td>support@batteryforensics.in — 7-day triage SLA. Do not include VINs/photos of other people.</td></tr>
+<tr><td>Report a vulnerability</td><td>Open a <a href="https://github.com/dipakjad1993/Bijli-Bureau/issues">GitHub issue</a> — 7-day triage SLA. Do not include VINs/photos of other people.</td></tr>
 </table>
 <p class="hint"><a href="/">← Run the free forensic</a> · <a href="/.well-known/bijlibureau-key.json">Signing key</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
 </div></div></main>
-<footer>By <a href="author.html">BijliBureau</a> · support@batteryforensics.in · Dataset 2026.16-enterprise.</footer>
+<footer>By <a href="author.html">BijliBureau</a> · Dataset 2026.16-enterprise.</footer>
 </body>
 </html>

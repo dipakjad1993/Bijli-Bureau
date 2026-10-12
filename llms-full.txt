@@ -109,7 +109,7 @@
 - [mapped] Lifecycle status: original/re-used/repurposed/remanufactured/waste ← second-life route gate (>70 reuse / 50–70 ESS / <50 recycle) + status label
 
 ## EU DPP71 (71 rows: n | point | tier | flag | tool mapping)
-- 1. [mandatory@2027][public] Manufacturer identification + contact ← operator-attach (tool prints reporter name + support@batteryforensics.in evidence contact)
+- 1. [mandatory@2027][public] Manufacturer identification + contact ← operator-attach (operator provides contact; tool prints reporter name + method + hash)
 - 2. [mandatory@2027][public] Battery category (EV / LMT / industrial / SLI / portable) ← mapped: seg 2W→LMT-class note / 4W→EV
 - 3. [mandatory@2027][public] Battery model identifier + batch/serial ← mapped: model.id + VIN-hash + timestamp UID
 - 4. [mandatory@2027][public] Place + date of manufacture ← mapped: purchaseDate proxy + booklet-year gate (operator confirms)
@@ -146,7 +146,7 @@
 - 35. [deferred:Omnibus COM(2025)504 unadopted][public] Instructions for use (handling / charging / storage) ← mapped: charging-band + shade-park guidance (operator manual governs)
 - 36. [conditional][legitimate] Maintenance / service history refs ← mapped: serviced flag + checklist + vault refs
 - 37. [mandatory@2027][public] Warranty terms (duration / km / trigger / remedy) ← mapped: full WARRANTY rule + clause + transfer + exclusions
-- 38. [mandatory@2027][public] Warranty provider + claim contact ← mapped: OEM + process + support@batteryforensics.in evidence contact
+- 38. [mandatory@2027][public] Warranty provider + claim contact ← mapped: OEM + process + claim path (operator contact governs)
 - 39. [conditional][legitimate] Repairability / disassembly information ← operator-attach
 - 40. [conditional][public] Spare-parts availability (duration + source) ← operator-attach
 - 41. [mandatory@2027][authority] Dismantling + discharge instructions (authorities/recyclers) ← operator-attach
@@ -178,7 +178,7 @@
 - 67. [mandatory@2027][legitimate] Correction / update log (who/when/what) ← mapped: corrections policy (7-day SLA) + versioned dataset
 - 68. [conditional][public] Language availability of passport data ← mapped: I18N en/de/fr labels (DPP export)
 - 69. [conditional][public] Accessibility of passport data (WCAG / machine-readable) ← mapped: JSON payload + tables (this page)
-- 70. [mandatory@2027][public] Complaints / non-conformity contact + market-surveillance ref ← mapped: CPA-2019 / MVBER procedural refs + corrections inbox
+- 70. [mandatory@2027][public] Complaints / non-conformity contact + market-surveillance ref ← mapped: CPA-2019 / MVBER procedural refs + corrections page
 - 71. [conditional][legitimate] End-of-waste / second-life passport transfer ref ← mapped: status-transition chain (vault + hash)
 
 ## California CARB (13 CCR §1962.5(c)(4)(A)4.c + (c)(6) + §1962.7 + §1962.8; CA DMV used-EV disclosure eff. Jan 2027)
@@ -188,5 +188,5 @@
 - tool vs reg: This tool's band (±1.8 OBD-strong → ±3.7 old-NMC model-only) sits INSIDE the 5pp manufacturer accuracy ceiling — visual on us/carb-soh-standard/.
 
 ## Entity (canonical, single name)
-- name: BijliBureau | url: https://batteryforensics.in/ | contact: support@batteryforensics.in | sameAs: https://github.com/dipakjad1993/Bijli-Bureau, https://www.linkedin.com/company/bijlibureau/, https://www.youtube.com/@bijlibureau, https://www.crunchbase.com/organization/bijlibureau
+- name: BijliBureau | url: https://batteryforensics.in/ | sameAs: https://github.com/dipakjad1993/Bijli-Bureau | report: https://github.com/dipakjad1993/Bijli-Bureau/issues
 - author: Dipak Jadhav — https://batteryforensics.in/author.html

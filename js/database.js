@@ -4,7 +4,8 @@
  * Canonical entity: "BijliBureau" — single name across schema/PDF/QR/footer.
  * (Legacy prototype accent "Warranty Claim Assassin" retained ONLY as a visible
  * eyebrow accent in index hero + changelog history — never in schema/PDF/QR.)
- * Contact: support@batteryforensics.in (monitored inbox, 7-day correction SLA).
+ * Reporting channel: GitHub Issues (https://github.com/dipakjad1993/Bijli-Bureau/issues),
+ * 7-day correction SLA. No contact inbox is claimed anywhere in this tool.
  * Sources: BNEF Battery Price Survey Dec 9 2025 ($108/kWh avg, BEV $99, ESS $70,
  *   LFP $81 / NMC $128; 2026F ≈ $105, next survey Dec-2026), IEA Global EV
  *   Outlook 2025/2026, AVILOO Certified EV Battery Report Sep 2-3 2026 (500k+
@@ -202,15 +203,14 @@ BF_DB.VALIDATION = {
   verdictRule:"No model at 150k sits on the wrong side of its warranty trigger. v2026.12 Leaf false-ELIGIBLE is closed."
 };
 BF_DB.VERSION = "2026.16-enterprise";
-BF_DB.CONTACT = { email:"support@batteryforensics.in", correctionsSlaDays:7,
+BF_DB.CONTACT = { issues:"https://github.com/dipakjad1993/Bijli-Bureau/issues", correctionsSlaDays:7,
   edaakhil:"https://edaakhil.nic.in/", ccpaHelpline:"1915", carbTitle13:"https://govt.westlaw.com/calregs" };
-/* Canonical entity — ONE name everywhere (schema/PDF/QR/footer/OG). */
+/* Canonical entity — ONE name everywhere (schema/PDF/QR/footer/OG). No inbox;
+   sameAs lists only properties the author actually controls. */
 BF_DB.ENTITY = { name:"BijliBureau", legalSuffix:"BijliBureau Lab (research unit)",
-  url:"https://batteryforensics.in/", email:"support@batteryforensics.in",
-  sameAs:["https://github.com/dipakjad1993/Bijli-Bureau",
-    "https://www.linkedin.com/company/bijlibureau/",
-    "https://www.youtube.com/@bijlibureau",
-    "https://www.crunchbase.com/organization/bijlibureau"],
+  url:"https://batteryforensics.in/",
+  issues:"https://github.com/dipakjad1993/Bijli-Bureau/issues",
+  sameAs:["https://github.com/dipakjad1993/Bijli-Bureau"],
   knowsAbout:["EV battery State of Health","EU Battery Regulation 2023/1542","Indian EV warranty law (CPA 2019)","California 13 CCR 1962.5 SoH standardization"] };
 BF_DB.AUTHOR = { "@type":"Person", name:"Dipak Jadhav", jobTitle:"Founder, BijliBureau — EV battery forensics",
   url:"https://batteryforensics.in/author.html",
@@ -267,7 +267,7 @@ BF_DB.DPP_MAP = {
 /* FULL 71-row DPP v2 table — generated into eu-battery-passport-qr/ as a crawlable table.
    Each row: { n, dpp, tier: public|legitimate|authority, flag, local } */
 BF_DB.DPP71 = [
-  { n:1, dpp:"Manufacturer identification + contact", tier:"public", flag:"mandatory@2027", local:"operator-attach (tool prints reporter name + support@batteryforensics.in evidence contact)" },
+  { n:1, dpp:"Manufacturer identification + contact", tier:"public", flag:"mandatory@2027", local:"operator-attach (operator provides contact; tool prints reporter name + method + hash)" },
   { n:2, dpp:"Battery category (EV / LMT / industrial / SLI / portable)", tier:"public", flag:"mandatory@2027", local:"mapped: seg 2W→LMT-class note / 4W→EV" },
   { n:3, dpp:"Battery model identifier + batch/serial", tier:"public", flag:"mandatory@2027", local:"mapped: model.id + VIN-hash + timestamp UID" },
   { n:4, dpp:"Place + date of manufacture", tier:"public", flag:"mandatory@2027", local:"mapped: purchaseDate proxy + booklet-year gate (operator confirms)" },
@@ -304,7 +304,7 @@ BF_DB.DPP71 = [
   { n:35, dpp:"Instructions for use (handling / charging / storage)", tier:"public", flag:"deferred:Omnibus COM(2025)504 unadopted", local:"mapped: charging-band + shade-park guidance (operator manual governs)" },
   { n:36, dpp:"Maintenance / service history refs", tier:"legitimate", flag:"conditional", local:"mapped: serviced flag + checklist + vault refs" },
   { n:37, dpp:"Warranty terms (duration / km / trigger / remedy)", tier:"public", flag:"mandatory@2027", local:"mapped: full WARRANTY rule + clause + transfer + exclusions" },
-  { n:38, dpp:"Warranty provider + claim contact", tier:"public", flag:"mandatory@2027", local:"mapped: OEM + process + support@batteryforensics.in evidence contact" },
+  { n:38, dpp:"Warranty provider + claim contact", tier:"public", flag:"mandatory@2027", local:"mapped: OEM + process + claim path (operator contact governs)" },
   { n:39, dpp:"Repairability / disassembly information", tier:"legitimate", flag:"conditional", local:"operator-attach" },
   { n:40, dpp:"Spare-parts availability (duration + source)", tier:"public", flag:"conditional", local:"operator-attach" },
   { n:41, dpp:"Dismantling + discharge instructions (authorities/recyclers)", tier:"authority", flag:"mandatory@2027", local:"operator-attach" },
@@ -336,7 +336,7 @@ BF_DB.DPP71 = [
   { n:67, dpp:"Correction / update log (who/when/what)", tier:"legitimate", flag:"mandatory@2027", local:"mapped: corrections policy (7-day SLA) + versioned dataset" },
   { n:68, dpp:"Language availability of passport data", tier:"public", flag:"conditional", local:"mapped: I18N en/de/fr labels (DPP export)" },
   { n:69, dpp:"Accessibility of passport data (WCAG / machine-readable)", tier:"public", flag:"conditional", local:"mapped: JSON payload + tables (this page)" },
-  { n:70, dpp:"Complaints / non-conformity contact + market-surveillance ref", tier:"public", flag:"mandatory@2027", local:"mapped: CPA-2019 / MVBER procedural refs + corrections inbox" },
+  { n:70, dpp:"Complaints / non-conformity contact + market-surveillance ref", tier:"public", flag:"mandatory@2027", local:"mapped: CPA-2019 / MVBER procedural refs + corrections page" },
   { n:71, dpp:"End-of-waste / second-life passport transfer ref", tier:"legitimate", flag:"conditional", local:"mapped: status-transition chain (vault + hash)" }
 ];
 /* California 2026+ regulatory layer (13 CCR + DMV Jan-2027). Underplayed elsewhere — shipped here. */

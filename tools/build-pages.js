@@ -76,7 +76,7 @@ ${faqJson ? `<script type="application/ld+json">${faqJson}<\/script>` : ""}
 ${body}
 <p class="hint"><a href="/">← Run the free forensic</a> · <a href="/methodology.html">Methodology &amp; verification</a> · <a href="/sitemap.xml">Sitemap</a></p>
 </div></div></main>
-<footer>By <a href="/author.html">BijliBureau</a> · support@batteryforensics.in · Dataset ${VER} · verified ${UPDATED} (build-stamped from database.js commit date) · Supporting evidence only — not legal advice. Verify your booklet year. · <a href="/corrections.html">Corrections (7-day SLA)</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer>
+<footer>By <a href="/author.html">BijliBureau</a> · Dataset ${VER} · verified ${UPDATED} (build-stamped from database.js commit date) · Supporting evidence only — not legal advice. Verify your booklet year. · <a href="/corrections.html">Corrections (7-day SLA)</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer>
 </body>
 </html>`;
 }
@@ -330,7 +330,7 @@ const usRows = usModels.map((m) => {
   L.push(`- tool vs reg: ${DB.CARB.toolVsReg}`);
   L.push("");
   L.push("## Entity (canonical, single name)");
-  L.push(`- name: ${DB.ENTITY.name} | url: ${DB.ENTITY.url} | contact: ${DB.ENTITY.email} | sameAs: ${(DB.ENTITY.sameAs||[]).join(", ")}`);
+  L.push(`- name: ${DB.ENTITY.name} | url: ${DB.ENTITY.url} | sameAs: ${(DB.ENTITY.sameAs||[]).join(", ")} | report: ${DB.ENTITY.issues}`);
   L.push(`- author: Dipak Jadhav — https://batteryforensics.in/author.html`);
   fs.writeFileSync(path.join(ROOT, "llms-full.txt"), L.join("\n") + "\n");
   console.log("llms-full.txt written (" + L.length + " lines)");

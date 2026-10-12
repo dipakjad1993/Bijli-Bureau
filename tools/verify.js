@@ -61,8 +61,8 @@ const ok = (m) => console.log("OK   " + m);
   else ok("DPP71 71/71 flagged rows");
   if (!DB.CARB || DB.CARB.sohAccuracyPp !== 5) fail("CARB layer missing");
   else ok("CARB MY2026 layer present");
-  if (!DB.ENTITY || !DB.ENTITY.sameAs || DB.ENTITY.sameAs.length < 3) fail("ENTITY sameAs missing");
-  else ok("ENTITY sameAs (" + DB.ENTITY.sameAs.length + " links)");
+  if (!DB.ENTITY || !DB.ENTITY.sameAs || DB.ENTITY.sameAs.length < 1) fail("ENTITY sameAs missing");
+  else ok("ENTITY sameAs (" + DB.ENTITY.sameAs.length + " links, author-controlled only)");
   // required assets (enterprise set)
   for (const f of ["og/hero-card.png", "llms.txt", "llms-full.txt", "us/index.html", "us/carb-soh-standard/index.html",
     "soh-index/index.html", "methodology.html", "author.html", "corrections.html", "privacy.html", "terms.html",
@@ -79,6 +79,7 @@ const ok = (m) => console.log("OK   " + m);
     "llms.txt", "llms-full.txt", "js/database.js", "js/forensics.js", "js/app.js", "tools/build-pages.js"];
   const strictEverywhere = ["battery-forensics.example.com", "clean-energy/lithium-ion",
     "Battery Forensics", "BATTERY FORENSICS", "lab@example.com", "Example you asked",
+    "support@batteryforensics.in",
     "v2026.12-enterprise", "v2026.13-enterprise", "v2026.15-enterprise", "?v=15",
     "courtroom-grade", "Courtroom-grade", "BATTCERTv2|"];
   let hard = 0;
