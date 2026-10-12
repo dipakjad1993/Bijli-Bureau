@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real-World SoH Index — Quarterly Field Battery Health (Opt-In, Anonymized)</title>
+<meta name="description" content="Quarterly SoH Index from opt-in anonymized runs: n, cities, chemistries, mean SoH by age bucket, fast-charge delta. No VIN, no raw odo, no device ID. Anonymization spec published.">
+<link rel="canonical" href="https://batteryforensics.in/soh-index/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="theme-color" content="#0B3B24">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Real-World SoH Index — Quarterly Field Battery Health (Opt-In, Anonymized)">
+<meta property="og:description" content="Quarterly SoH Index from opt-in anonymized runs: n, cities, chemistries, mean SoH by age bucket, fast-charge delta. No VIN, no raw odo, no device ID. Anonymization spec published.">
+<meta property="og:url" content="https://batteryforensics.in/soh-index/">
+<meta property="og:image" content="https://batteryforensics.in/og/hero-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Real-World SoH Index — Quarterly Field Battery Health (Opt-In, Anonymized)">
+<meta name="twitter:description" content="Quarterly SoH Index from opt-in anonymized runs: n, cities, chemistries, mean SoH by age bucket, fast-charge delta. No VIN, no raw odo, no device ID. Anonymization spec published.">
+<meta name="twitter:image" content="https://batteryforensics.in/og/hero-card.png">
+<link rel="alternate" hreflang="en-IN" href="https://batteryforensics.in/soh-index/">
+<link rel="alternate" hreflang="x-default" href="https://batteryforensics.in/soh-index/">
+<link rel="stylesheet" href="/css/styles.css?v=16">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Real-World SoH Index — Quarterly Field Battery Health (Opt-In, Anonymized)","author":{"@type":"Person","name":"Dipak Jadhav","url":"https://batteryforensics.in/author.html"},"publisher":{"@type":"Organization","name":"BijliBureau","url":"https://batteryforensics.in/"},"datePublished":"2025-07-20","dateModified":"2026-10-12","about":["State of Health","EV battery","soh-index"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Real-World SoH Index?","acceptedAnswer":{"@type":"Answer","text":"A quarterly publication (PDF + landing table) of field SoH by age bucket, chemistry, city-climate bucket and fast-charge share — from opt-in anonymized runs only. n, mix and method printed every quarter."}},{"@type":"Question","name":"What data leaves my device?","acceptedAnswer":{"@type":"Answer","text":"Only city-climate bucket + chemistry + EFC bucket + SoH bucket + app version + date. No VIN, no raw odometer, no device ID, no photos. Consent checkbox gates a 200-cap revocable outbox; POST only when a telemetry endpoint is configured."}},{"@type":"Question","name":"Where is the anonymization spec?","acceptedAnswer":{"@type":"Answer","text":"Methodology §4 + tools/soh-index-worker.js (Cloudflare Worker + R2 reference). Buckets: city→climate zone, odo→EFC decile, SoH→1pp bucket. k-anonymity floor: buckets with n<5 are suppressed."}},{"@type":"Question","name":"When is the first release?","acceptedAnswer":{"@type":"Answer","text":"Q1 after the telemetry endpoint is configured. Until then the outbox queues locally and this page shows the method + empty tables — honestly, not with invented numbers."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Forensic tool","item":"https://batteryforensics.in/"},{"@type":"ListItem","position":2,"name":"BijliBureau Real-World SoH Index: anonymized field data, quarterly","item":"https://batteryforensics.in/soh-index/"}]}</script>
+</head>
+<body>
+<div class="topbar"><div class="wrap"><div class="brand"><span class="bolt">⚡</span> BIJLIBUREAU <span class="sub">2026.16-enterprise</span></div><div class="topstats"><a href="/" style="color:#a9f5bd">← Free forensic tool</a></div></div></div>
+<main><div class="panel active" style="display:block"><div class="card">
+<p class="step-eyebrow">GUIDE · UPDATED 2026-10-12 · DATASET 2026.16-enterprise</p>
+<h1>BijliBureau Real-World SoH Index: anonymized field data, quarterly</h1>
+<p class="hint">By <b>BijliBureau</b> · Updated 2026-10-12 · Backtested method (mean residual 1.5–1.8 pts vs AVILOO Sep-2026) · Supporting evidence only. Warranty paraphrase — verify booklet.</p><h2>Q1 table (pending endpoint — method shown, no invented numbers)</h2><table class="kv"><tr><th>Age bucket</th><th>n</th><th>Mean SoH</th><th>Chemistries</th></tr><tr><td>0–2 yr</td><td>—</td><td>—</td><td>—</td></tr><tr><td>2–4 yr</td><td>—</td><td>—</td><td>—</td></tr><tr><td>4–8 yr</td><td>—</td><td>—</td><td>—</td></tr><tr><td>8+ yr</td><td>—</td><td>—</td><td>—</td></tr></table><p class="hint">Configure BF_DB.ANALYTICS.telemetryEndpoint (see tools/soh-index-worker.js) to start collection. Pitch kit for Electrek/HT Auto/BikeWale/Overdrive ships with Q1.</p><h3>Questions, answered</h3><details class="adv"><summary>What is the Real-World SoH Index?</summary><div class="adv-body"><p>A quarterly publication (PDF + landing table) of field SoH by age bucket, chemistry, city-climate bucket and fast-charge share — from opt-in anonymized runs only. n, mix and method printed every quarter.</p></div></details>
+<details class="adv"><summary>What data leaves my device?</summary><div class="adv-body"><p>Only city-climate bucket + chemistry + EFC bucket + SoH bucket + app version + date. No VIN, no raw odometer, no device ID, no photos. Consent checkbox gates a 200-cap revocable outbox; POST only when a telemetry endpoint is configured.</p></div></details>
+<details class="adv"><summary>Where is the anonymization spec?</summary><div class="adv-body"><p>Methodology §4 + tools/soh-index-worker.js (Cloudflare Worker + R2 reference). Buckets: city→climate zone, odo→EFC decile, SoH→1pp bucket. k-anonymity floor: buckets with n&lt;5 are suppressed.</p></div></details>
+<details class="adv"><summary>When is the first release?</summary><div class="adv-body"><p>Q1 after the telemetry endpoint is configured. Until then the outbox queues locally and this page shows the method + empty tables — honestly, not with invented numbers.</p></div></details><h3>Try it on your pack</h3><p><a href="/#/intake">Free forensic →</a> SoH ± disclosed band + warranty verdict + value + timestamped + SHA-256 hashed evidence PDF, on-device.</p>
+<p class="hint"><a href="/">← Run the free forensic</a> · <a href="/methodology.html">Methodology &amp; verification</a> · <a href="/sitemap.xml">Sitemap</a></p>
+</div></div></main>
+<footer>By <a href="/author.html">BijliBureau</a> · support@batteryforensics.in · Dataset 2026.16-enterprise · verified 2026-10-12 (build-stamped from database.js commit date) · Supporting evidence only — not legal advice. Verify your booklet year. · <a href="/corrections.html">Corrections (7-day SLA)</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer>
+</body>
+</html>

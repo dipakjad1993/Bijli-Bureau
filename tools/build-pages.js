@@ -15,7 +15,9 @@ load("js/database.js");
 load("js/forensics.js");
 const DB = window.BF_DB, E = window.BF_Engine;
 const SITE = "https://batteryforensics.in";
-const UPDATED = DB.MARKET.updated;
+const UPDATED = (()=>{ try{ const {execSync}=require("child_process");
+  const d=execSync("git log -1 --format=%cs -- js/database.js",{cwd:ROOT,encoding:"utf8"}).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d)) return d; }catch(e){} return DB.MARKET.updated; })();
 const VER = DB.VERSION;
 const VSHORT = VER.split("-")[0]; // "2026.15" for user-facing model copy
 
@@ -48,7 +50,7 @@ function shell({ title, desc, canon, h1, eyebrow, body, faqJson, extraJson }) {
 <meta name="twitter:image" content="${SITE}/og/hero-card.png">
 <link rel="alternate" hreflang="en-IN" href="${canon}">
 <link rel="alternate" hreflang="x-default" href="${canon}">
-<link rel="stylesheet" href="/css/styles.css?v=15">
+<link rel="stylesheet" href="/css/styles.css?v=16">
 <script type="application/ld+json">${extraJson || "{}"}<\/script>
 ${faqJson ? `<script type="application/ld+json">${faqJson}<\/script>` : ""}
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Forensic tool","item":"${SITE}/"},{"@type":"ListItem","position":2,"name":${JSON.stringify(h1)},"item":${JSON.stringify(canon)}}]}<\/script>
@@ -61,7 +63,7 @@ ${faqJson ? `<script type="application/ld+json">${faqJson}<\/script>` : ""}
 ${body}
 <p class="hint"><a href="/">← Run the free forensic</a> · <a href="/methodology.html">Methodology &amp; verification</a> · <a href="/sitemap.xml">Sitemap</a></p>
 </div></div></main>
-<footer>BijliBureau Lab · lab@example.com · Dataset ${VER} · verified ${UPDATED} · Not legal advice. Verify your booklet year.</footer>
+<footer>By <a href="/author.html">BijliBureau</a> · support@batteryforensics.in · Dataset ${VER} · verified ${UPDATED} (build-stamped from database.js commit date) · Supporting evidence only — not legal advice. Verify your booklet year. · <a href="/corrections.html">Corrections (7-day SLA)</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer>
 </body>
 </html>`;
 }
@@ -72,8 +74,14 @@ function faqScript(faqs) {
 }
 function techScript(headline, about) {
   return JSON.stringify({ "@context": "https://schema.org", "@type": "TechArticle", headline,
-    author: { "@type": "Organization", name: "BijliBureau Lab" },
+    author: { "@type": "Person", name: "Dipak Jadhav", url: SITE + "/author.html" },
+    publisher: { "@type": "Organization", name: "BijliBureau", url: SITE + "/" },
     datePublished: "2025-07-20", dateModified: UPDATED, about });
+}
+function productScript(m, w) {
+  return JSON.stringify({ "@context":"https://schema.org", "@type":"Product", name: m.brand+" "+m.model,
+    category:"Electric vehicle battery", description: w.years+"yr/"+(w.km>9000000?"unlimited":w.km)+"km battery warranty, trigger below "+w.soh+"% SoH. "+w.note,
+    brand:{ "@type":"Brand", name: m.brand } });
 }
 
 // Worked example: 5-yr-old pack, 60k km (2W: 4yr/30k km), Chennai, 30% DC — real engine.
@@ -111,7 +119,16 @@ for (const m of DB.MODELS) {
     { q: `What is a used ${m.model} battery worth second-life?`, a: `At ${f.soh}% SoH ≈${f.usableNow} kWh usable → home-backup route ≈${usd(f.usableNow * DB.MARKET.essBuyback.home_perKWh_usd * DB.MARKET.essBuyback.installMargin)} gross-scale value (BNEF Dec-2025 $108/kWh anchor, live FX). Get your exact figure in the free Second-Life valuator.` },
   ];
   const body = `
-<p class="hint">By <b>BijliBureau Lab</b> · Updated ${UPDATED} · Dataset ${VER} · Supporting evidence only — not legal advice. Always verify your booklet year + RC year + service stamps.</p>
+<p class="hint">By <b>BijliBureau</b> · Updated ${UPDATED} · Dataset ${VER} · Supporting evidence only — not legal advice. Warranty text below is a paraphrase — verify against your booklet year + RC year + service stamps.</p>
+<noscript><p><b>${esc(m.brand)} ${esc(m.model)}:</b> trigger below ${w.soh}% SoH · ${w.years}yr/${kmFmt(w.km)} · ${esc(w.process)}</p></noscript>
+<h2>What is the ${esc(m.brand)} ${esc(m.model)} battery warranty trigger in 2026?</h2>
+<p>The ${esc(m.brand)} ${esc(m.model)} high-voltage battery is covered when measured State of Health falls <b>below ${w.soh}%</b>. Term: <b>${w.years} years / ${kmFmt(w.km)}</b>, whichever hits first. Remedy and threshold follow ${esc(w.clause)} Always confirm your booklet year, because mid-cycle OEM updates change terms.</p>
+<h2>How long does the ${esc(m.model)} battery warranty last?</h2>
+<p>${w.years} years or ${kmFmt(w.km)}, whichever hits first. ${esc(w.note)} File while <b>both</b> time and kilometre limits are alive — whichever hits first ends coverage. Keep service stamps clean.</p>
+<h2>What are the top 3 denial grounds for a ${esc(m.model)} battery claim?</h2>
+<p>The three most common denial grounds are: (1) ${esc(w.exclusions.split(".")[0]||w.exclusions)}; (2) missing or irregular OEM service history; (3) booklet-year mismatch (pre-update vs post-update stock). Counter with BMS SoH in writing, stamped history, and RC-year proof.</p>
+<h2>What does the ${esc(m.model)} warranty clause say?</h2>
+<p>Paraphrase of the cited clause: <span class="clause">“${esc(w.clause)}”</span> Carry this exact line to the service advisor and OEM email CC, and demand the OEM BMS SoH percentage plus threshold in writing.</p>
 <table class="kv">
 <tr><td>OEM term</td><td><b>${w.years} yr / ${kmFmt(w.km)}</b> · trigger <b>below ${w.soh}% SoH</b></td></tr>
 <tr><td>Exact clause</td><td><span class="clause">“${esc(w.clause)}”</span></td></tr>
@@ -122,13 +139,14 @@ for (const m of DB.MODELS) {
 <tr><td>Pack</td><td>${m.kwh} kWh ${esc(chem.name)} · ${m.rangeNew} km certified · ${esc(priceNote)}</td></tr>
 <tr><td>Worked example (real engine v${VSHORT})</td><td>Chennai, ${age}yr, ${kms.toLocaleString("en-IN")} km → <b>≈${f.soh}% SoH (band ${f.lo90}–${f.hi90}%)</b> · verdict: <b>${esc(v.status)}</b> · ${f.efc} EFC · heat gap ×${f.hotFactor} vs Pune</td></tr>
 </table>
+<dl class="hint"><dt>SoH (State of Health)</dt><dd>Usable capacity today ÷ rated capacity when new × 100. Here: ≈${f.soh}% (band ${f.lo90}–${f.hi90}%) for the worked example.</dd><dt>EFC (Equivalent Full Cycles)</dt><dd>Odometer km ÷ certified range. Here: ${f.efc} EFC consumed.</dd><dt>Arrhenius calendar aging</dt><dd>Heat-driven fade scaled by chemistry activation energy and city pack temperature.</dd></dl>
 <h3>Run your exact numbers (free, on-device, 60 seconds)</h3>
-<p><a href="/#/intake">Open the forensic →</a> snap 3 photos, get SoH ± disclosed band, this clause pre-cited in your claim letter, and a SHA-256 evidence PDF.</p>
+<p><a href="/#/intake">Open the forensic →</a> snap 3 photos, get SoH ± disclosed band, this clause pre-cited in your claim letter, and a timestamped + SHA-256 hashed evidence PDF.</p>
 <h3>Frequently asked — ${esc(m.brand)} ${esc(m.model)} battery</h3>
 ${faqs.map((x) => `<details class="adv"><summary>${esc(x.q)}</summary><div class="adv-body"><p>${esc(x.a)}</p></div></details>`).join("\n")}`;
   const html = shell({ title, desc: `${m.brand} ${m.model}: ${w.years}yr/${kmFmt(w.km)} battery warranty, below-${w.soh}% trigger, clause text, claim path + free SoH check with published accuracy.`,
     canon, h1, eyebrow: `WARRANTY RULE ${DB.WARRANTIES.indexOf(w) + 1} OF ${DB.WARRANTIES.length} · UPDATED ${UPDATED}`,
-    body, faqJson: faqScript(faqs), extraJson: techScript(title, [m.brand + " battery warranty", "State of Health", "warranty claim"]) });
+    body, faqJson: faqScript(faqs), extraJson: techScript(title, [m.brand + " battery warranty", "State of Health", "warranty claim"]) + "\n<script type=\"application/ld+json\">" + productScript(m, w) + "<\/script>" });
   const dir = path.join(ROOT, "warranty", m.id);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "index.html"), html);
@@ -153,18 +171,18 @@ const pillars = [
     bodyExtra: `<h3>The equation (nothing hidden)</h3><pre class="code">cycleFade% = EFC^0.85 × (20/cycleLife) × DoDstress × CrateStress\ncalendarFade% = eff-age × base × Arrhenius(Tpack) × SoCstress · eff-age plateaus after yr 2–3\nband = √(MC² + field-floor²) · MC: odo ±2%, T ±1.5°C, age ±15d (n=600, really sampled)</pre><h3>Backtest summary (AVILOO Sep-2026 medians)</h3><p class="hint">Mean |residual| 1.5 pts @50k km, 1.8 @150k km. Worst misses published: Ioniq 5 −4.1 @150k, Zoe +3.5 @50k. Full table: Methodology §6 + js/database.js VALIDATION. Re-run it yourself: <code>node tools/backtest.js</code>.</p>` },
   { slug: "eu-battery-passport-qr", h1: "EU Battery Passport QR (mandatory 18 Feb 2027): 71 fields, pre-DPP checklist",
     title: "EU Battery Passport QR 2027 — 71-Field Pre-DPP Checklist + Free QR Generator",
-    desc: "EU Regulation 2023/1542 battery passport: mandatory 18 Feb 2027, QR-linked, 71 data points. Free pre-DPP QR generator mapping SoH, cycles, chemistry, warranty to DPP fields.",
+    desc: "EU Regulation 2023/1542 battery passport: mandatory 18 Feb 2027, QR-linked, 71 data points with mandatory/deferred flags. Free pre-DPP QR generator (BATTCERTv3 + SOCE). Pre-passport credential, not an Art.77 passport.",
     faqs: [
-      { q: "When does the EU Battery Passport become mandatory?", a: "18 February 2027 for EV, LMT and industrial batteries above 2 kWh (Regulation 2023/1542). The registry went live 20 July 2026; implementation guidance v2.0 (71 data points) published August 2026." },
-      { q: "What data goes in the battery passport?", a: "71 points across identity, capacity, exhaustion threshold, internal resistance, C-rate, carbon footprint, safety, test reports, SoH + cycles + durability class. This tool maps 9 rows today (mapped/partial/operator-attach) — see DPP_MAP in js/database.js." },
-      { q: "Does a used EV need a passport at resale?", a: "From Feb 2027, in-scope batteries placed on the EU market need a QR-linked passport; resellers should carry SoH + cycles documentation now. The free cert QR (BATTCERTv2 + DPPpre JSON) is forward-compatible evidence." },
-      { q: "How do I generate a pre-DPP QR free?", a: "Run the forensic → Resale tab → the tool emits BATTCERTv2 pipe payload + DPPpre JSON (SoH ± band, EFC, cycles left, trigger, VIN-hash, method, timestamp, SHA-256). Print at 25 mm for listings." },
+      { q: "When does the EU Battery Passport become mandatory?", a: "18 February 2027 for EV, LMT and industrial batteries above 2 kWh (Regulation 2023/1542 Art.77(1), unchanged by Omnibus IV). The registry went live 20 July 2026 (IR 2026/1778); Guidance v2.0 (71 data points) 15 Aug 2026; only ~46–47 mandatory for EV at Feb-2027, rest deferred/conditional." },
+      { q: "What data goes in the battery passport?", a: "71 points: identity, capacity, exhaustion threshold (no universal 80%), SOCE + capacity fade + resistance increase + lifecycle status (mandatory EV), carbon (deferred), recycled content (from Aug-2028), safety, test reports, operator chain. Full flagged table below — each row mandatory@2027 / conditional / deferred / na-for-EV." },
+      { q: "Does a used EV need a passport at resale?", a: "From Feb 2027, in-scope batteries placed on the EU market need a QR-linked passport; resellers should carry SoH + cycles + SOCE documentation now. The free cert QR (BATTCERTv3 + DPPpre JSON) is forward-compatible evidence — explicitly a pre-passport credential, not an Art.77 passport." },
+      { q: "How do I generate a pre-DPP QR free?", a: "Run the forensic → Resale tab → the tool emits BATTCERTv3 pipe payload + DPPpre JSON (SoH ± band, SOCE kWh, EFC, cycles left, lifecycle status, trigger, VIN-hash, access tier, method, timestamp, SHA-256). Print at 25 mm for listings. QR aligns to EN 18220 / identifier EN 18219 or equivalent." },
       { q: "What is the 'exhaustion threshold' (no universal 80%)?", a: "Correct — there is no single 80% rule; the threshold is per-application. The tool maps YOUR OEM warranty trigger (70%, Leaf 66.25% bars, Bolt 60%) as the exhaustion basis." },
-      { q: "Who attaches the carbon footprint?", a: "The operator (manufacturer/importer) via a PEF study — the tool marks this operator-attach and anchors pricing context to BNEF Dec-2025. It does not invent carbon numbers." },
+      { q: "Who attaches the carbon footprint?", a: "The operator (manufacturer/importer) via a PEF study — deferred until Art.7 acts adopt. The tool marks this operator-attach and anchors pricing context to the BNEF Dec-2025 snapshot. It does not invent carbon numbers." },
+      { q: "Who can see my battery SoH under the access tiers?", a: "Pending the Art.77(9) access-rights act (missed 18 Aug 2026; draft Oct–Nov 2026, adoption Q4 2026). This tool structures payloads as public / legitimate-interest / authority tiers now, so compliance flips a config flag, not a schema. SoH sits in the restricted tier." },
       { q: "India/SEA sellers: why care about EU DPP?", a: "EU-compliant documentation raises export and fleet-buyer trust, and the same QR converts on OLX/Cars24/CarMax today. Compliance tailwind, not hype." },
-      { q: "Where is the field mapping documented?", a: "Methodology §4 + DPP_MAP (9 rows: mapped/partial/operator-attach) + each evidence PDF prints both QR payloads." },
     ],
-    bodyExtra: `<h3>Pre-DPP field map (this tool today)</h3><p class="hint">9 rows mapped: battery ID + VIN-hash · rated kWh · exhaustion threshold = your OEM trigger + clause · C-rate/fastPct · safety envelope · test-report hash · SoH ± band + EFC + cycles + trajectory. Partial: internal resistance (OBD delta-V proxy when present). Operator-attach: carbon/PEF. Full table: Methodology §4.</p>` },
+    bodyExtra: `<h2>What QR spec does the pre-passport payload follow?</h2><p>BATTCERTv3 resolves as <code>https://batteryforensics.in/cert/#{uid}</code> (registry-resolved pattern). Identifier: EN 18219:2026 or equivalent (ISO/IEC 15459 / GS1). Carrier: EN 18220:2026 or equivalent. Access tiers: <b>public</b> (SoH, SOCE, cycles, trigger), <b>legitimate-interest</b> (VIN-hash, delta-V, service refs), <b>authority</b> (full VIN, raw telemetry). Pre-passport credential — NOT an Art.77 passport.</p><h2>DPP Map v2 — all 71 data points, flagged</h2><p class="hint">Generated from js/database.js DPP71 (single source of truth). Flags: mandatory@2027 / conditional / deferred(instrument+date).</p><table class="kv"><tr><th>#</th><th>DPP data point</th><th>Tier</th><th>Flag</th><th>This tool</th></tr>${DB.DPP71.map(r=>`<tr><td>${r.n}</td><td>${esc(r.dpp)}</td><td>${esc(r.tier)}</td><td>${esc(r.flag)}</td><td>${esc(r.local)}</td></tr>`).join("")}</table>` },
   { slug: "second-life-value", h1: "Second-life EV battery value: ESS, fleet re-pack & recycle routes priced live",
     title: "Second-Life EV Battery Value Calculator — ESS vs Fleet vs Recycle (Live FX)",
     desc: "What is your used EV battery worth? Home ESS $88/kWh, fleet $58, recycle $26 — live FX, BNEF-anchored, refurb math shown. Free second-life valuator.",
@@ -184,7 +202,7 @@ const pillars = [
     desc: "Sell your used EV higher: battery-certified price band (grade multiplier, +9% cert premium), dealer-bid expectation, and a scannable QR cert with SHA-256 hash. Free.",
     faqs: [
       { q: "How much does battery certification add to resale?", a: "Model: certified ask = base × grade multiplier (A+ 1.06 … D 0.78) with +9% cert premium vs uncertified (×0.93); dealer bid ≈0.88× certified. AVILOO's 13.5% intra-model spread implies up to ₹60k (Ola-class) / $5k (Model-3-class) swings on identical listings (illustrative)." },
-      { q: "What does the buyer QR show?", a: "BATTCERTv2: brand/model, SoH ± band, grade, range today/new, odometer, city, date, EFC, evidence source, VIN-hash — plus DPPpre JSON. Scans to verifiable text even before any registry exists." },
+      { q: "What does the buyer QR show?", a: "BATTCERTv3: issuer BijliBureau, brand/model, SoH ± band, SOCE kWh, grade, range today/new, odometer, city, date, EFC, lifecycle status, access tier, evidence source, VIN-hash — plus DPPpre JSON. Pre-passport credential, not an Art.77 passport. Scans to verifiable text even before any registry exists." },
       { q: "How is the price band computed?", a: "Age depreciation (13%/yr 2W, 11%/yr 4W) × km factor × battery-share factor (42% of EV value is battery, health-scaled) × grade multiplier. Every factor is shown in Tab 5 — no black box." },
       { q: "What should I paste into my OLX/Cars24 listing?", a: "The one-click price band + cert text buttons copy: band, grade, SoH ± band, dealer-bid expectation, and the QR payload. Stick the printed QR (25 mm) on the listing photos." },
       { q: "Do dealers (Cars24/CarMax/OLX) accept this cert?", a: "It is third-party supporting evidence with method + timestamp + hash — present it alongside the OEM BMS printout you demand in writing. Certified packs report +12% margin, ~22 days faster turn (2025 dealer self-reported — directional)." },
@@ -193,11 +211,33 @@ const pillars = [
       { q: "Does this help lenders/insurers?", a: "Yes: auditable SoH ± band + cycles + hash is risk-pricing input. API shape documented in README (POST /v1/forensic → {soh, ci, grade, warranty, qr, hash})." },
     ],
     bodyExtra: `<h3>Listing kit (free)</h3><p class="hint">Price band + cert text + QR payload + DPPpre JSON, all copy-paste in Tab 5. Embed mode <code>?embed=1</code> for dealer sites.</p>` },
+  { slug: "us/carb-soh-standard", h1: "California CARB MY2026 SoH standard: 5pp accuracy, dash display, 70% warranty",
+    title: "CARB MY2026 SoH Standard (13 CCR 1962.5) — 5pp Accuracy + Free Compliance Check",
+    desc: "California MY2026+ EVs must report normalized SoH within 5pp high, dash-displayable, warranty SoH<70% 8yr/100k mi. Free explainer + comparison: this tool's ±1.8–3.7 band sits inside the 5pp ceiling.",
+    faqs: [
+      { q: "What SoH accuracy does California require from MY2026 EVs?", a: "Within 5 percentage points high: reported SoH must be no more than 5pp above measured usable battery energy (13 CCR §1962.5(c)(4)(A)4.c), displayable to the driver (§1962.5(c)(6)) — no scan tool required." },
+      { q: "What is the California battery warranty from MY2026?", a: "SoH below 70% at 8yr/100k mi (MY2026–2030); below 75% from MY2031 (13 CCR §1962.8). In-use enforcement (§1962.7): CARB can sample-test; recall if >30% sampled report >8pp high (MY26–28) / >5pp high (MY29+)." },
+      { q: "What must California dealers disclose on used EVs from Jan 2027?", a: "SoH% or estimated remaining range, last OTA version affecting BMS/range, battery replaced/repaired status + date, remaining warranty + transferability, open HV recalls. Third-party diagnostics allowed if DMV-certified; 3-year retention, random audits, fines." },
+      { q: "How does this free tool compare to the 5pp ceiling?", a: "OBD-strong runs ±1.8%, solid CSV ≤±3.0%, model-only LFP ≈±1.8% young → 12-yr NMC ≈±3.7% — the full band sits inside CARB's 5pp manufacturer accuracy envelope. Run the forensic and compare your band to the ceiling." },
+      { q: "Does this tool meet the DMV third-party diagnostic standard?", a: "The DMV certification standard is pending — this tool is structurally the cheapest SoH evidence generator (free, on-device, hashed PDF + QR). Dealer cert pathway note ships here once the standard publishes." },
+      { q: "Which US models are covered?", a: "Tesla Model 3/Y, Leaf (66.25% bars), Bolt (~60%), Mach-E, ID.4, Ioniq 5, Polestar 2, MG4, Zoe and more — see the US hub table." },
+    ],
+    bodyExtra: `<h2>What does 13 CCR §1962.5 require in one paragraph?</h2><p>MY2026+ ZEVs/PHEVs sold in California must report normalized battery SoH (0–100%) via standardized parameters, accurate so reported SoH is <b>no more than 5pp higher</b> than measured usable energy, and displayable on the dash. Warranty and enforcement follow §§1962.7–1962.8 above.</p><h2>Tool band vs regulatory ceiling</h2><p class="hint">OBD-strong ±1.8% · CSV-solid ≤±3.0% · model-only up to ±3.7% — all inside the 5pp ceiling. That comparison is a demo, PR, and dealer-sales graphic in one.</p>` },
+  { slug: "soh-index", h1: "BijliBureau Real-World SoH Index: anonymized field data, quarterly",
+    title: "Real-World SoH Index — Quarterly Field Battery Health (Opt-In, Anonymized)",
+    desc: "Quarterly SoH Index from opt-in anonymized runs: n, cities, chemistries, mean SoH by age bucket, fast-charge delta. No VIN, no raw odo, no device ID. Anonymization spec published.",
+    faqs: [
+      { q: "What is the Real-World SoH Index?", a: "A quarterly publication (PDF + landing table) of field SoH by age bucket, chemistry, city-climate bucket and fast-charge share — from opt-in anonymized runs only. n, mix and method printed every quarter." },
+      { q: "What data leaves my device?", a: "Only city-climate bucket + chemistry + EFC bucket + SoH bucket + app version + date. No VIN, no raw odometer, no device ID, no photos. Consent checkbox gates a 200-cap revocable outbox; POST only when a telemetry endpoint is configured." },
+      { q: "Where is the anonymization spec?", a: "Methodology §4 + tools/soh-index-worker.js (Cloudflare Worker + R2 reference). Buckets: city→climate zone, odo→EFC decile, SoH→1pp bucket. k-anonymity floor: buckets with n<5 are suppressed." },
+      { q: "When is the first release?", a: "Q1 after the telemetry endpoint is configured. Until then the outbox queues locally and this page shows the method + empty tables — honestly, not with invented numbers." },
+    ],
+    bodyExtra: `<h2>Q1 table (pending endpoint — method shown, no invented numbers)</h2><table class="kv"><tr><th>Age bucket</th><th>n</th><th>Mean SoH</th><th>Chemistries</th></tr><tr><td>0–2 yr</td><td>—</td><td>—</td><td>—</td></tr><tr><td>2–4 yr</td><td>—</td><td>—</td><td>—</td></tr><tr><td>4–8 yr</td><td>—</td><td>—</td><td>—</td></tr><tr><td>8+ yr</td><td>—</td><td>—</td><td>—</td></tr></table><p class="hint">Configure BF_DB.ANALYTICS.telemetryEndpoint (see tools/soh-index-worker.js) to start collection. Pitch kit for Electrek/HT Auto/BikeWale/Overdrive ships with Q1.</p>` },
 ];
 for (const pl of pillars) {
   const html = shell({ title: pl.title, desc: pl.desc, canon: `${SITE}/${pl.slug}/`, h1: pl.h1,
     eyebrow: `GUIDE · UPDATED ${UPDATED} · DATASET ${VER}`,
-    body: `<p class="hint">By <b>BijliBureau Lab</b> · Updated ${UPDATED} · Backtested method (mean residual 1.5–1.8 pts vs AVILOO Sep-2026) · Supporting evidence only.</p>${pl.bodyExtra}<h3>Questions, answered</h3>${pl.faqs.map((x) => `<details class="adv"><summary>${esc(x.q)}</summary><div class="adv-body"><p>${esc(x.a)}</p></div></details>`).join("\n")}<h3>Try it on your pack</h3><p><a href="/#/intake">Free forensic →</a> SoH ± disclosed band + warranty verdict + value + evidence PDF, on-device.</p>`,
+    body: `<p class="hint">By <b>BijliBureau</b> · Updated ${UPDATED} · Backtested method (mean residual 1.5–1.8 pts vs AVILOO Sep-2026) · Supporting evidence only. Warranty paraphrase — verify booklet.</p>${pl.bodyExtra}<h3>Questions, answered</h3>${pl.faqs.map((x) => `<details class="adv"><summary>${esc(x.q)}</summary><div class="adv-body"><p>${esc(x.a)}</p></div></details>`).join("\n")}<h3>Try it on your pack</h3><p><a href="/#/intake">Free forensic →</a> SoH ± disclosed band + warranty verdict + value + timestamped + SHA-256 hashed evidence PDF, on-device.</p>`,
     faqJson: faqScript(pl.faqs), extraJson: techScript(pl.title, ["State of Health", "EV battery", pl.slug]) });
   const dir = path.join(ROOT, pl.slug);
   fs.mkdirSync(dir, { recursive: true });
@@ -225,7 +265,7 @@ const usRows = usModels.map((m) => {
     desc: "Free US EV battery health check: Tesla/Nissan Leaf bars/Chevy Bolt triggers, mile-based terms, USD values, QR cert. On-device, no dongle.",
     canon: `${SITE}/us/`, h1: "US EV batteries: health check + warranty triggers (free, on-device)",
     eyebrow: `US HUB · UPDATED ${UPDATED}`,
-    body: `<p class="hint">Recurrent = US-only paid telematics. AVILOO = €300 dongle + lab. Geotab = fleet SaaS. This = free, on-device, with clause-level verdicts and a hashed evidence PDF.</p><table class="kv"><tr><th>Model</th><th>Term</th><th>Trigger</th><th>Pack</th></tr>${usRows}</table><h3>US questions, answered</h3>${faqs.map((x) => `<details class="adv"><summary>${esc(x.q)}</summary><div class="adv-body"><p>${esc(x.a)}</p></div></details>`).join("\n")}<p><a href="/#/intake">Run the free forensic →</a></p>`,
+    body: `<p class="hint">Recurrent = US-only paid telematics. AVILOO = €300 dongle + lab. Geotab = fleet SaaS. This = free, on-device, with clause-level verdicts and a hashed evidence PDF.</p><h2>What SoH accuracy does California require from MY2026 EVs?</h2><p>Within <b>5 percentage points high</b> (13 CCR §1962.5): reported SoH ≤ measured + 5pp, dash-displayable. Warranty SoH below 70% at 8yr/100k mi (MY2026–30). Full explainer: <a href="/us/carb-soh-standard/">CARB MY2026 SoH standard →</a></p><table class="kv"><tr><th>Model</th><th>Term</th><th>Trigger</th><th>Pack</th></tr>${usRows}</table><h3>US questions, answered</h3>${faqs.map((x) => `<details class="adv"><summary>${esc(x.q)}</summary><div class="adv-body"><p>${esc(x.a)}</p></div></details>`).join("\n")}<p><a href="/#/intake">Run the free forensic →</a> · <a href="/us/carb-soh-standard/">CARB standard explainer →</a></p>`,
     faqJson: faqScript(faqs), extraJson: techScript("US EV battery warranty guide", ["EV warranty", "Tesla", "Nissan Leaf"]) });
   fs.mkdirSync(path.join(ROOT, "us"), { recursive: true });
   fs.writeFileSync(path.join(ROOT, "us", "index.html"), html);
@@ -251,8 +291,8 @@ const usRows = usModels.map((m) => {
   for (const [c, g] of Object.entries(DB.CLIMATE))
     L.push(`- ${c}: mean ${g.meanC}C, pack-effective ${g.effPackC}C (${g.zone})`);
   L.push("");
-  L.push("## Market snapshot (" + UPDATED + ")");
-  L.push(`- BNEF Dec-2025: pack $${DB.MARKET.bnef.globalPack_perKWh_usd}/kWh (BEV $${DB.MARKET.bnef.bevPack}, ESS $${DB.MARKET.bnef.essPack}, LFP $${DB.MARKET.bnef.lfpPack}, NMC $${DB.MARKET.bnef.nmcPack}; China $${DB.MARKET.bnef.china}, NA $${DB.MARKET.bnef.na}, EU $${DB.MARKET.bnef.eu})`);
+  L.push("## Market snapshot (" + UPDATED + ") — BNEF is a dated SNAPSHOT, not live");
+  L.push(`- BNEF Dec-2025 snapshot: pack $${DB.MARKET.bnef.globalPack_perKWh_usd}/kWh (BEV $${DB.MARKET.bnef.bevPack}, ESS $${DB.MARKET.bnef.essPack}, LFP $${DB.MARKET.bnef.lfpPack}, NMC $${DB.MARKET.bnef.nmcPack}; China $${DB.MARKET.bnef.china}, NA $${DB.MARKET.bnef.na}, EU $${DB.MARKET.bnef.eu}; 2026F ~$105, next survey Dec-2026)`);
   L.push(`- 2nd-life routes: home $${DB.MARKET.essBuyback.home_perKWh_usd}/kWh, fleet $${DB.MARKET.essBuyback.fleet_perKWh_usd}, recycle $${DB.MARKET.essBuyback.recycle_perKWh_usd}, margin ${DB.MARKET.essBuyback.installMargin}`);
   L.push(`- FX: market snapshot ₹${DB.MARKET.inrUsd} (${DB.MARKET.fxSnapshotAt}), RBI ref ₹${DB.MARKET.rbiRef}; live via open.er-api`);
   L.push(`- AVILOO Sep-2026: ${DB.MARKET.aviloo.tests.toLocaleString("en-US")}+ tests, spread ≤${DB.MARKET.aviloo.maxSpread}%`);
@@ -262,17 +302,38 @@ const usRows = usModels.map((m) => {
     L.push(`- ${r.model}: @50k model ${r.at50k_model}% vs aviloo ${r.at50k_aviloo}% (r=${r.resid50k}); @150k model ${r.at150k_model}% vs aviloo ${r.at150k_aviloo}% (r=${r.resid150k})`);
   L.push(`- Summary: ${DB.VALIDATION.summary}`);
   L.push("");
-  L.push("## EU DPP pre-map (" + DB.DPP_MAP.standard + ", mandatory " + DB.DPP_MAP.mandatory_from + ")");
+  L.push("## EU DPP v2 full map (" + DB.DPP_MAP.standard + ", mandatory " + DB.DPP_MAP.mandatory_from + ")");
+  L.push(`## DISCLAIMER: ${DB.DPP_MAP.disclaimer}`);
+  L.push(`## QR: identifier ${(DB.DPP_MAP.qrSpec||{}).identifierStd}; carrier ${(DB.DPP_MAP.qrSpec||{}).carrierStd}; template ${(DB.DPP_MAP.qrSpec||{}).template}`);
   for (const f of DB.DPP_MAP.fields) L.push(`- [${f.status}] ${f.dpp} ← ${f.local}`);
+  L.push("");
+  L.push("## EU DPP71 (71 rows: n | point | tier | flag | tool mapping)");
+  for (const r of (DB.DPP71||[])) L.push(`- ${r.n}. [${r.flag}][${r.tier}] ${r.dpp} ← ${r.local}`);
+  L.push("");
+  L.push("## California CARB (" + DB.CARB.std + ")");
+  L.push(`- accuracy ≤${DB.CARB.sohAccuracyPp}pp high, dash display: ${DB.CARB.dashDisplay}; warranty: ${DB.CARB.warranty}`);
+  L.push(`- enforcement: ${DB.CARB.enforcement}`);
+  L.push(`- DMV Jan-2027 disclosure: ${DB.CARB.dmvDisclosure.join("; ")} ${DB.CARB.dmvNote}`);
+  L.push(`- tool vs reg: ${DB.CARB.toolVsReg}`);
+  L.push("");
+  L.push("## Entity (canonical, single name)");
+  L.push(`- name: ${DB.ENTITY.name} | url: ${DB.ENTITY.url} | contact: ${DB.ENTITY.email} | sameAs: ${(DB.ENTITY.sameAs||[]).join(", ")}`);
+  L.push(`- author: Dipak Jadhav — https://batteryforensics.in/author.html`);
   fs.writeFileSync(path.join(ROOT, "llms-full.txt"), L.join("\n") + "\n");
   console.log("llms-full.txt written (" + L.length + " lines)");
 }
 
 // ---- sitemap (single source of truth: files just written) ----
+const staticPages = ["author.html","corrections.html","privacy.html","terms.html","security.html","demo-chapters.html","api/openapi.json",".well-known/bijlibureau-key.json"];
 const urls = [{ loc: `${SITE}/`, freq: "weekly", pri: "1.0" },
   { loc: `${SITE}/methodology.html`, freq: "monthly", pri: "0.9" },
   ...pillars.map((p) => ({ loc: `${SITE}/${p.slug}/`, freq: p.slug === "soh-calculator" ? "weekly" : "monthly", pri: p.slug === "soh-calculator" ? "0.9" : "0.8" })),
   { loc: `${SITE}/us/`, freq: "monthly", pri: "0.8" },
+  { loc: `${SITE}/author.html`, freq: "yearly", pri: "0.6" },
+  { loc: `${SITE}/corrections.html`, freq: "monthly", pri: "0.5" },
+  { loc: `${SITE}/privacy.html`, freq: "yearly", pri: "0.4" },
+  { loc: `${SITE}/terms.html`, freq: "yearly", pri: "0.4" },
+  { loc: `${SITE}/security.html`, freq: "yearly", pri: "0.4" },
   ...warrantyPages.map((id) => ({ loc: `${SITE}/warranty/${id}/`, freq: "monthly", pri: "0.8" }))];
 const sm = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
   urls.map((u) => `  <url><loc>${u.loc}</loc><lastmod>${UPDATED}</lastmod><changefreq>${u.freq}</changefreq><priority>${u.pri}</priority></url>`).join("\n") +

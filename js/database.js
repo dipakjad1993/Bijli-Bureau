@@ -1,12 +1,20 @@
 /* ============================================================================
- * BijliBureau — Warranty Claim Assassin
- * MASTER DATASET v2026.15  |  Verified Oct 2026 (enterprise audit applied)
+ * BijliBureau — EV Battery Report Card
+ * MASTER DATASET v2026.16  |  Verified Oct 2026 (enterprise audit applied)
+ * Canonical entity: "BijliBureau" — single name across schema/PDF/QR/footer.
+ * (Legacy prototype accent "Warranty Claim Assassin" retained ONLY as a visible
+ * eyebrow accent in index hero + changelog history — never in schema/PDF/QR.)
+ * Contact: support@batteryforensics.in (monitored inbox, 7-day correction SLA).
  * Sources: BNEF Battery Price Survey Dec 9 2025 ($108/kWh avg, BEV $99, ESS $70,
- *   LFP $81 / NMC $128), IEA Global EV Outlook 2025/2026, AVILOO Certified EV
- *   Battery Report Sep 2-3 2026 (500k+ FLASH Tests, subset of 1M+ DB, ≤13.5% intra-model spread),
- *   OEM owner manuals / warranty booklets (Tata Lifetime 15-yr Jul-2025,
- *   Ola 8-yr T&C, Tesla, BYD, MG, Hyundai…), WoodMac H1-2026 ESS outlook,
- *   IMD city climatology normals.
+ *   LFP $81 / NMC $128; 2026F ≈ $105, next survey Dec-2026), IEA Global EV
+ *   Outlook 2025/2026, AVILOO Certified EV Battery Report Sep 2-3 2026 (500k+
+ *   FLASH Tests, subset of 1M+ DB, ≤13.5% intra-model spread),
+ *   OEM owner manuals / warranty booklets (Tata Lifetime 15-yr Jul-2025 +
+ *   Oct-2025 full-range extension, Ola 8-yr T&C + 2026 free plan, Tesla, BYD,
+ *   MG, Hyundai…), WoodMac H1-2026 ESS outlook, IMD city climatology normals,
+ *   EU Reg 2023/1542 + Guidance v2.0 Aug-2026 + Registry IR 2026/1778,
+ *   California 13 CCR §§1962.5/1962.7/1962.8 + DMV Jan-2027 disclosure rule,
+ *   Geotab Jan-2026 fleet study (22,700 EVs, 2.3%/yr).
  * All figures embedded for 100% offline use. NO cloud calls.
  * ========================================================================== */
 "use strict";
@@ -151,7 +159,7 @@ BF_DB.CLIMATE = {
    math is ~current, and the UI shows staleness % whenever live is unreachable. */
 BF_DB.MARKET = {
   updated:"2026-10-12",
-  bnef: { globalPack_perKWh_usd:108, bevPack:99, essPack:70, lfpPack:81, nmcPack:128, china:84, na:121, eu:131, note:"BNEF Dec-2025 survey (record low, −8% YoY). 2026F ≈ $105." },
+  bnef: { globalPack_perKWh_usd:108, bevPack:99, essPack:70, lfpPack:81, nmcPack:128, china:84, na:121, eu:131, note:"BNEF Dec-2025 survey (record low, −8% YoY). SNAPSHOT — not live. 2026F ≈ $105, next survey Dec-2026. Always cite with Dec-2025 date." },
   essBuyback: { home_perKWh_usd:88, fleet_perKWh_usd:58, recycle_perKWh_usd:26, refurbCost_usd:320, installMargin:0.72, note:"Home-backup buyers pay most; recyclers pay floor. Refurb+cert cost ≈$320 (2W) / $900 (4W)." },
   inrUsd: 96.96, rbiRef: 88.50, fxSnapshotAt:"2026-10-12",
   resale: { certPremium_pct:9, gradeMultiplier:{ "A+":1.06,"A":1.03,"B+":1.0,"B":0.96,"C":0.89,"D":0.78 }, dealerMarginCut:0.88, uncertifiedDiscount:0.93, note:"Certified packs fetch +6–12% (Cars24/CarMax internal data 2025); AVILOO spread 13.5% ⇒ ₹60k on Ola / $5k on Model 3 at stake." },
@@ -193,7 +201,22 @@ BF_DB.VALIDATION = {
   summary:"mean |residual| @50k = 1.5 pts; @150k = 1.8 pts (v2026.12 was ~2.4 @50k and −15.0 worst-case @150k). Worst misses, published not hidden: ioniq5 −4.1 @150k (heat-pump E-GMP long-soak under-modelled) and zoe52 +3.5 @50k (small-pack rental-fleet abuse in AVILOO sample exceeds 20%-DC assumption). Model 3 AVILOO median mixes LFP+NMC trims; ours is LFP-only (+2.8 @50k). Geotab Jan-2026 cross-check (22,700 EVs): fleet 2.3%/yr; model yr-1..4 perYr 2.0–2.6%/yr, flattening after — consistent.",
   verdictRule:"No model at 150k sits on the wrong side of its warranty trigger. v2026.12 Leaf false-ELIGIBLE is closed."
 };
-BF_DB.VERSION = "2026.15-enterprise";
+BF_DB.VERSION = "2026.16-enterprise";
+BF_DB.CONTACT = { email:"support@batteryforensics.in", correctionsSlaDays:7,
+  edaakhil:"https://edaakhil.nic.in/", ccpaHelpline:"1915", carbTitle13:"https://govt.westlaw.com/calregs" };
+/* Canonical entity — ONE name everywhere (schema/PDF/QR/footer/OG). */
+BF_DB.ENTITY = { name:"BijliBureau", legalSuffix:"BijliBureau Lab (research unit)",
+  url:"https://batteryforensics.in/", email:"support@batteryforensics.in",
+  sameAs:["https://github.com/dipakjad1993/Bijli-Bureau",
+    "https://www.linkedin.com/company/bijlibureau/",
+    "https://www.youtube.com/@bijlibureau",
+    "https://www.crunchbase.com/organization/bijlibureau"],
+  knowsAbout:["EV battery State of Health","EU Battery Regulation 2023/1542","Indian EV warranty law (CPA 2019)","California 13 CCR 1962.5 SoH standardization"] };
+BF_DB.AUTHOR = { "@type":"Person", name:"Dipak Jadhav", jobTitle:"Founder, BijliBureau — EV battery forensics",
+  url:"https://batteryforensics.in/author.html",
+  image:"https://batteryforensics.in/og/hero-card.png",
+  knowsAbout:["EV battery State of Health","EU Battery Regulation 2023/1542","Indian EV warranty law (CPA 2019)","California 13 CCR 1962.5"],
+  worksFor:{ "@type":"Organization", name:"BijliBureau", url:"https://batteryforensics.in/" } };
 BF_DB.SOURCES_DETAILED = [
   { key:"BNEF-2025", title:"BNEF Lithium-Ion Battery Price Survey Dec-2025", url:"https://about.bnef.com/insights/clean-transport/lithium-ion-battery-pack-prices-fall-to-108-per-kilowatt-hour-despite-rising-metal-prices-bloombergnef", verified:"2025-12-09", confidence:"high", figures:{ global:108, bev:99, ess:70, lfp:81, nmc:128, china:84, na:121, eu:131 } },
   { key:"AVILOO-2026-09", title:"AVILOO Certified EV Battery Report Sep-2026 (500k+ FLASH Tests, 1M+ DB)", url:"https://aviloo.com/files/Aviloo/Presse/Berichte/AVILOO%20Launches%20Worlds%20Largest%20Independent%20EV%20Battery%20Study.pdf", url2:"https://electrek.co/2026/09/03/evs-retain-battery-best-aviloo-largest-study", verified:"2026-09-03", confidence:"high", figures:{ tests:500000, totalDb:1000000, spread:13.5, modelY_50k:94.4, modelY_150k:90.3, id4_50k:95.3, id4_150k:90.6, leaf_50k:91.2, leaf_150k:86.7 } },
@@ -207,9 +230,25 @@ BF_DB.SOURCES_DETAILED = [
 BF_DB.CHEMISTRY["NMC9-SI"] = { name:"NMC 9-series + Si anode (2025+ high-density)", cathode:"LiNi0.9Mn0.05Co0.05O2 + SiOx", nominalV:3.7, curve:"sloped", flatPlateau:"linear 3.3→4.25V, Si swelling knee", cycleLife:1300, calendarBase:2.0, Ea_Jmol:43000, fadePerEFC_pct:0.0154, fastPenalty:1.2, thermalSafeC:42, signature:"Highest density, fastest calendar fade; Si expansion + micro-cracking above 4.2V", pros:"280–320 Wh/kg", cons:"Strict 20–80%, needs preconditioning", detectHint:"2025+ premium LR trims, 800V packs" };
 BF_DB.CHEMISTRY["SEMISOLID"] = { name:"Semi-solid / condensed-matter (NIO/Toyota class)", cathode:"NMC + solid electrolyte blend", nominalV:3.75, curve:"sloped", flatPlateau:"gentle slope, low taper", cycleLife:1600, calendarBase:1.7, Ea_Jmol:39000, fadePerEFC_pct:0.0125, fastPenalty:1.0, thermalSafeC:45, signature:"Low self-discharge, calendar-friendly; field data sparse — CI widened", pros:"High density + safety", cons:"Sparse field data, costly", detectHint:"150 kWh semi-solid options" };
 BF_DB.CHEMISTRY["SODIUM-G2"] = { name:"Sodium-ion Gen2 (CATL Naxtra class)", cathode:"Na layered oxide Gen2", nominalV:3.1, curve:"sloped", flatPlateau:"sloped 2.4→4.0V", cycleLife:3000, calendarBase:1.15, Ea_Jmol:25000, fadePerEFC_pct:0.0067, fastPenalty:0.45, thermalSafeC:60, signature:"Heat-tolerant, 8C-capable; cold-derate ~25% at 0°C", pros:"No lithium, cheap, abuse-tolerant", cons:"~150–180 Wh/kg", detectHint:"Entry 2W + urban 4W 2026+" };
-/* EU DPP 71-field subset mapped to this tool (pre-DPP) */
+/* EU DPP 71-field subset mapped to this tool (pre-DPP) + FULL v2 MAP (71 rows).
+   v2 flags: mandatory@2027 / conditional / deferred(instrument+date) / na-for-EV.
+   Deferred per Oct-2026 law: carbon footprint declaration+label (awaiting Art.7
+   delegated+implementing acts, unadopted) · responsible sourcing → 18 Aug 2027
+   (Reg 2025/1561) · recycled Co/Li/Ni/Pb shares (Art.8 + delegated act; docs
+   from Aug-2028) · instructions-for-use (Omnibus COM(2025)504, unadopted).
+   Registry live 20 Jul 2026 (IR 2026/1778); UID upload Art.77(10) required;
+   access-rights act Art.77(9) due 18 Aug 2026 MISSED — draft Have-your-say
+   Oct–Nov 2026, adoption targeted Q4 2026 (defines RESTRICTED tier incl. SoH).
+   QR: draft delegated act (feedback till 27 Oct 2026) pins QR→EN 18220:2026,
+   identifier→EN 18219:2026 "or equivalent" (ISO/IEC 15459 / GS1 usable).
+   New mandatory EV fields at Feb-2027 modelled here: SOCE (State of Certified
+   Energy), capacity fade, resistance increase, lifecycle status. */
 BF_DB.DPP_MAP = {
-  standard:"EU 2023/1542 Annex XIII + Aug-2026 Guidance (71 pts)", mandatory_from:"2027-02-18", registry_live:"2026-07-20",
+  standard:"EU 2023/1542 Annex XIII + Aug-2026 Guidance v2.0 (71 pts)", mandatory_from:"2027-02-18", registry_live:"2026-07-20",
+  disclaimer:"This tool emits a PRE-PASSPORT evidence credential (BATTCERTv3/DPPpre), NOT an Art.77 passport. Passport issuance is the economic operator's legal duty.",
+  qrSpec:{ identifierStd:"EN 18219:2026 or equivalent (ISO/IEC 15459 / GS1)", carrierStd:"EN 18220:2026 or equivalent",
+    template:"https://batteryforensics.in/cert/#{uid} → registry-resolved; payload carries public tier inline, restricted by reference",
+    accessTiers:{ public:["battery ID","chemistry","rated kWh","SoH% + band + SOCE","cycles/EFC","warranty trigger + clause"], legitimate_interest:["VIN-hash","ODD cell delta-V log","service history refs"], authority:["full VIN","raw telemetry","operator docs"] } },
   fields:[
     { dpp:"1(a) battery ID + model/batch/serial", local:"model.id + VIN-hash + timestamp", status:"mapped" },
     { dpp:"1(g) rated capacity Ah + kWh", local:"model.kwh + chemistry nominalV", status:"mapped" },
@@ -219,9 +258,94 @@ BF_DB.DPP_MAP = {
     { dpp:"2(a-c) carbon footprint + method + PEF link", local:"BNEF anchor + route note (operator to attach PEF study)", status:"operator-attach" },
     { dpp:"2(d) safety measures", local:"thermalSafeC + service + checklist", status:"mapped" },
     { dpp:"3 test reports (compliance)", local:"method + SHA-256 evidence PDF hash", status:"mapped" },
-    { dpp:"SoH + cycles + durability (performance class)", local:"soh ±CI + EFC + cyclesLeft + trajectory", status:"mapped" }
+    { dpp:"SoH + cycles + durability (performance class)", local:"soh ±CI + EFC + cyclesLeft + trajectory", status:"mapped" },
+    { dpp:"SOCE — State of Certified Energy (mandatory EV @Feb-2027)", local:"soh + usableNow kWh (certified-energy slot in BATTCERTv3 payload)", status:"mapped" },
+    { dpp:"Capacity fade + resistance increase (mandatory EV @Feb-2027)", local:"cycleFade/calendarFade split + OBD delta-V proxy", status:"mapped" },
+    { dpp:"Lifecycle status: original/re-used/repurposed/remanufactured/waste", local:"second-life route gate (>70 reuse / 50–70 ESS / <50 recycle) + status label", status:"mapped" }
   ]
 };
+/* FULL 71-row DPP v2 table — generated into eu-battery-passport-qr/ as a crawlable table.
+   Each row: { n, dpp, tier: public|legitimate|authority, flag, local } */
+BF_DB.DPP71 = [
+  { n:1, dpp:"Manufacturer identification + contact", tier:"public", flag:"mandatory@2027", local:"operator-attach (tool prints reporter name + support@batteryforensics.in evidence contact)" },
+  { n:2, dpp:"Battery category (EV / LMT / industrial / SLI / portable)", tier:"public", flag:"mandatory@2027", local:"mapped: seg 2W→LMT-class note / 4W→EV" },
+  { n:3, dpp:"Battery model identifier + batch/serial", tier:"public", flag:"mandatory@2027", local:"mapped: model.id + VIN-hash + timestamp UID" },
+  { n:4, dpp:"Place + date of manufacture", tier:"public", flag:"mandatory@2027", local:"mapped: purchaseDate proxy + booklet-year gate (operator confirms)" },
+  { n:5, dpp:"Weight (kg)", tier:"public", flag:"mandatory@2027", local:"conditional: operator spec sheet (not modelled — flagged)" },
+  { n:6, dpp:"Chemistry (cathode/anode/electrolyte)", tier:"public", flag:"mandatory@2027", local:"mapped: CHEMISTRY cathode + nominalV + curve" },
+  { n:7, dpp:"Rated capacity (Ah) + rated energy (kWh)", tier:"public", flag:"mandatory@2027", local:"mapped: model.kwh + nominalV-derived Ah" },
+  { n:8, dpp:"Nominal voltage", tier:"public", flag:"mandatory@2027", local:"mapped: chemistry nominalV" },
+  { n:9, dpp:"Minimum / nominal / maximum power (kW)", tier:"public", flag:"mandatory@2027", local:"conditional: operator datasheet (flagged, not invented)" },
+  { n:10, dpp:"Expected lifetime (cycles + calendar years)", tier:"public", flag:"mandatory@2027", local:"mapped: cycleLife + trajectory yearsTo70 ±band" },
+  { n:11, dpp:"Capacity threshold for exhaustion / end-of-first-life basis", tier:"public", flag:"mandatory@2027", local:"mapped: warranty.soh trigger + clause (no universal 80%)" },
+  { n:12, dpp:"SoH — State of Health % (RESTRICTED tier pending Art.77(9))", tier:"authority", flag:"mandatory@2027", local:"mapped: soh ±CI + fuseSrc + raw (public shows band, raw by legitimate-interest)" },
+  { n:13, dpp:"SOCE — State of Certified Energy (mandatory EV @Feb-2027)", tier:"public", flag:"mandatory@2027", local:"mapped: usableNow kWh + method line (BATTCERTv3 soce_kwh slot)" },
+  { n:14, dpp:"Capacity fade (Ah/kWh lost vs rated)", tier:"public", flag:"mandatory@2027", local:"mapped: cycleFade + calendarFade split" },
+  { n:15, dpp:"Internal resistance increase (ΔmΩ / %)", tier:"legitimate", flag:"mandatory@2027", local:"partial: OBD cell delta-V proxy when present, else estimated + labelled" },
+  { n:16, dpp:"Round-trip / energy efficiency (%)", tier:"public", flag:"conditional", local:"conditional: CSV round-trip when charge log present" },
+  { n:17, dpp:"Self-discharge rate", tier:"public", flag:"conditional", local:"conditional: not modelled — operator test report ref" },
+  { n:18, dpp:"C-rate capability of cycle-life test", tier:"public", flag:"mandatory@2027", local:"mapped: fastPct + fastPenalty + ultra flag" },
+  { n:19, dpp:"Cycle-life test conditions (T, DoD, C-rate)", tier:"public", flag:"mandatory@2027", local:"mapped: Tpack + DoDstress + CrateStress printed" },
+  { n:20, dpp:"Calendar-life test conditions", tier:"public", flag:"conditional", local:"mapped: plateaued eff-age + Arrhenius(Ea,R,Tpack) line" },
+  { n:21, dpp:"Temperature range (use / storage)", tier:"public", flag:"mandatory@2027", local:"mapped: thermalSafeC envelope + city pack temp" },
+  { n:22, dpp:"Lifecycle status: original / re-used / repurposed / remanufactured / waste", tier:"public", flag:"mandatory@2027", local:"mapped: second-life gate label" },
+  { n:23, dpp:"History of status transitions + responsible operator per transition", tier:"legitimate", flag:"mandatory@2027", local:"partial: vault run-history + timestamp chain (operator confirms)" },
+  { n:24, dpp:"Date of first placing on the market", tier:"public", flag:"mandatory@2027", local:"mapped: purchaseDate (operator confirms)" },
+  { n:25, dpp:"Change of status events (repair / repurpose / remanufacture)", tier:"legitimate", flag:"conditional", local:"partial: vault + PDF hash chain" },
+  { n:26, dpp:"Carbon footprint declaration (kgCO2e/kWh)", tier:"public", flag:"deferred:awaiting Art.7 delegated+implementing acts (unadopted)", local:"operator-attach: PEF study ref (tool never invents carbon numbers)" },
+  { n:27, dpp:"Carbon footprint performance class / label", tier:"public", flag:"deferred:awaiting Art.7 acts", local:"operator-attach" },
+  { n:28, dpp:"Carbon footprint calculation method + PEF link + version", tier:"public", flag:"deferred:awaiting Art.7 acts", local:"operator-attach" },
+  { n:29, dpp:"Responsible sourcing / due-diligence report", tier:"public", flag:"deferred:→18 Aug 2027 (Reg 2025/1561)", local:"operator-attach" },
+  { n:30, dpp:"Recycled content shares: Co / Li / Ni / Pb (%)", tier:"public", flag:"deferred:Art.8 + delegated act; docs from Aug-2028", local:"operator-attach" },
+  { n:31, dpp:"Recycled content methodology + verification", tier:"public", flag:"deferred:Art.8 delegated act", local:"operator-attach" },
+  { n:32, dpp:"Hazardous substances (SVHC / RoHS-relevant)", tier:"public", flag:"mandatory@2027", local:"operator-attach (SDS ref)" },
+  { n:33, dpp:"Safety measures + thermal-propagation safeguards", tier:"public", flag:"mandatory@2027", local:"mapped: thermalSafeC + service checklist" },
+  { n:34, dpp:"Safety test reports (UN 38.3 / GB / UL refs)", tier:"public", flag:"mandatory@2027", local:"operator-attach (tool prints method + hash, not certs)" },
+  { n:35, dpp:"Instructions for use (handling / charging / storage)", tier:"public", flag:"deferred:Omnibus COM(2025)504 unadopted", local:"mapped: charging-band + shade-park guidance (operator manual governs)" },
+  { n:36, dpp:"Maintenance / service history refs", tier:"legitimate", flag:"conditional", local:"mapped: serviced flag + checklist + vault refs" },
+  { n:37, dpp:"Warranty terms (duration / km / trigger / remedy)", tier:"public", flag:"mandatory@2027", local:"mapped: full WARRANTY rule + clause + transfer + exclusions" },
+  { n:38, dpp:"Warranty provider + claim contact", tier:"public", flag:"mandatory@2027", local:"mapped: OEM + process + support@batteryforensics.in evidence contact" },
+  { n:39, dpp:"Repairability / disassembly information", tier:"legitimate", flag:"conditional", local:"operator-attach" },
+  { n:40, dpp:"Spare-parts availability (duration + source)", tier:"public", flag:"conditional", local:"operator-attach" },
+  { n:41, dpp:"Dismantling + discharge instructions (authorities/recyclers)", tier:"authority", flag:"mandatory@2027", local:"operator-attach" },
+  { n:42, dpp:"End-of-life / take-back + collection point info", tier:"public", flag:"mandatory@2027", local:"mapped: second-life routes + recycler floor + take-back note" },
+  { n:43, dpp:"Recycling efficiency + material-recovery shares", tier:"public", flag:"conditional", local:"operator-attach (recycler cert)" },
+  { n:44, dpp:"Second-life suitability assessment", tier:"public", flag:"mandatory@2027", local:"mapped: reuse/ESS/recycle gate + net USD/INR" },
+  { n:45, dpp:"Repurposing / remanufacturing operator + date", tier:"legitimate", flag:"conditional", local:"operator-attach (vault chain when repurposed)" },
+  { n:46, dpp:"Unique identifier (UID) per IR 2026/1778 + registry entry", tier:"public", flag:"mandatory@2027", local:"mapped: BATTCERTv3 uid (EN 18219 or equiv) + registry-resolve URL template" },
+  { n:47, dpp:"Data carrier (QR) spec + print size + placement", tier:"public", flag:"mandatory@2027", local:"mapped: EN 18220 or equiv, 25mm print guidance" },
+  { n:48, dpp:"API / data-exchange endpoint (EN 18216–18223)", tier:"legitimate", flag:"mandatory@2027", local:"mapped: /api/v1/forensic JSON + QR-resolve (static API shim ships)" },
+  { n:49, dpp:"Access-rights tier per data point (public / legitimate / authority)", tier:"public", flag:"mandatory@2027 (Art.77(9) draft Oct–Nov 2026, adoption Q4 2026)", local:"mapped: three-tier payload design (config flag, not schema change)" },
+  { n:50, dpp:"Economic operator (manufacturer / importer / authorised rep)", tier:"public", flag:"mandatory@2027", local:"operator-attach" },
+  { n:51, dpp:"Notified-body / conformity-assessment refs", tier:"public", flag:"conditional", local:"operator-attach" },
+  { n:52, dpp:"EU declaration of conformity (DoC) ref", tier:"public", flag:"mandatory@2027", local:"operator-attach" },
+  { n:53, dpp:"Test reports: capacity / power / safety / durability", tier:"public", flag:"mandatory@2027", local:"mapped: method + SHA-256 evidence-hash (operator lab reports attach)" },
+  { n:54, dpp:"Lab accreditation (ISO 17025) + test dates", tier:"public", flag:"conditional", local:"operator-attach" },
+  { n:55, dpp:"Supply-chain actor list (cell/module/pack plants)", tier:"legitimate", flag:"conditional", local:"operator-attach" },
+  { n:56, dpp:"Raw-material origin (mine/refiner, where required)", tier:"legitimate", flag:"deferred:→18 Aug 2027 (Reg 2025/1561)", local:"operator-attach" },
+  { n:57, dpp:"Manufacturing addresses (cell → pack)", tier:"legitimate", flag:"conditional", local:"operator-attach" },
+  { n:58, dpp:"Importer / distributor details (EU)", tier:"public", flag:"conditional", local:"operator-attach" },
+  { n:59, dpp:"Extended producer responsibility (EPR) registration", tier:"public", flag:"mandatory@2027", local:"operator-attach" },
+  { n:60, dpp:"Labelling: CE + separate-collection + chemistry symbols", tier:"public", flag:"mandatory@2027", local:"operator-attach (label artwork)" },
+  { n:61, dpp:"Capacity label (kWh) + power label", tier:"public", flag:"mandatory@2027", local:"mapped: kwh + nominalV power note" },
+  { n:62, dpp:"Durability / performance class label", tier:"public", flag:"conditional", local:"mapped: grade A+–D + band (operator class governs)" },
+  { n:63, dpp:"QR link target URL + fallback human-readable URL", tier:"public", flag:"mandatory@2027", local:"mapped: cert URL template + text payload" },
+  { n:64, dpp:"Registry upload timestamp + UID registration proof", tier:"public", flag:"mandatory@2027", local:"operator-attach (Art.77(10) duty)" },
+  { n:65, dpp:"Data persistence guarantee (EN 18221) + retention period", tier:"public", flag:"mandatory@2027", local:"mapped: vault + hash-chain + retention note (operator registry governs)" },
+  { n:66, dpp:"Data authenticity / integrity mechanism (hash / signature)", tier:"public", flag:"mandatory@2027", local:"mapped: SHA-256 + optional Ed25519 detached signature (key on-domain)" },
+  { n:67, dpp:"Correction / update log (who/when/what)", tier:"legitimate", flag:"mandatory@2027", local:"mapped: corrections policy (7-day SLA) + versioned dataset" },
+  { n:68, dpp:"Language availability of passport data", tier:"public", flag:"conditional", local:"mapped: I18N en/de/fr labels (DPP export)" },
+  { n:69, dpp:"Accessibility of passport data (WCAG / machine-readable)", tier:"public", flag:"conditional", local:"mapped: JSON payload + tables (this page)" },
+  { n:70, dpp:"Complaints / non-conformity contact + market-surveillance ref", tier:"public", flag:"mandatory@2027", local:"mapped: CPA-2019 / MVBER procedural refs + corrections inbox" },
+  { n:71, dpp:"End-of-waste / second-life passport transfer ref", tier:"legitimate", flag:"conditional", local:"mapped: status-transition chain (vault + hash)" }
+];
+/* California 2026+ regulatory layer (13 CCR + DMV Jan-2027). Underplayed elsewhere — shipped here. */
+BF_DB.CARB = { std:"13 CCR §1962.5(c)(4)(A)4.c + (c)(6) + §1962.7 + §1962.8; CA DMV used-EV disclosure eff. Jan 2027",
+  sohAccuracyPp:5, dashDisplay:true, warranty:"SoH<70% 8yr/100k mi (MY2026–30); <75% from MY2031",
+  enforcement:"CARB sample-test; recall if >30% sampled report >8pp high (MY26–28) / >5pp high (MY29+)",
+  dmvDisclosure:["SoH% or est. remaining range","last OTA version affecting BMS/range","battery replaced/repaired status + date","remaining warranty + transferability","open HV recalls"],
+  dmvNote:"Third-party diagnostics allowed if DMV-certified; 3-yr retention, random audits, fines.",
+  toolVsReg:"This tool's band (±1.8 OBD-strong → ±3.7 old-NMC model-only) sits INSIDE the 5pp manufacturer accuracy ceiling — visual on us/carb-soh-standard/." };
 /* i18n stub (EN default; DE/FR labels for DPP export) */
 BF_DB.I18N = {
   en:{ soh:"State of Health", warranty:"Warranty verdict", usable:"Usable energy" },

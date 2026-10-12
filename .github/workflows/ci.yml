@@ -5,19 +5,23 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: "18 3 * * 1"
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Syntax check (all app JS)
+      - name: Syntax check (all app JS + tools)
         run: |
           node --check js/database.js
           node --check js/forensics.js
@@ -25,14 +29,45 @@ jobs:
           node --check tools/backtest.js
           node --check tools/build-pages.js
           node --check tools/verify.js
+          node --check tools/check-sources.js
+          node --check tools/validate-jsonld.js
+          node --check tools/property-test.js
+          node --check tools/soh-index-worker.js
+          node --check tools/generate-key.js
+          node --check tools/verify-signature.js
+          node --check tools/api.js
+          node --check tools/dealer-auth.js
+          node --check sw.js
 
       - name: Backtest vs AVILOO medians (must PASS)
         run: node tools/backtest.js
 
+      - name: Property-based edge tests (must PASS)
+        run: node tools/property-test.js
+
       - name: Static-site integrity (must PASS)
         run: node tools/verify.js
+
+      - name: JSON-LD validation (must PASS)
+        run: node tools/validate-jsonld.js
 
       - name: Generated pages in sync (no drift)
         run: |
           node tools/build-pages.js
-          git diff --exit-code -- sitemap.xml llms-full.txt warranty soh-calculator eu-battery-passport-qr second-life-value used-ev-resale-cert us || (echo "❌ Generated pages out of sync — run: node tools/build-pages.js and commit" && exit 1)
+          git diff --exit-code -- sitemap.xml llms-full.txt warranty soh-calculator eu-battery-passport-qr second-life-value used-ev-resale-cert us soh-index author.html corrections.html privacy.html terms.html security.html demo-chapters.html || (echo "❌ Generated pages out of sync — run: node tools/build-pages.js and commit" && exit 1)
+
+  source-decay:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: HEAD every SOURCES_DETAILED URL (weekly truth-decay watch)
+        run: node tools/check-sources.js --open-issue || echo "decay report written (non-blocking; see source-decay-report.json)"
+      - name: Upload decay report
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-decay-report
+          path: source-decay-report.json

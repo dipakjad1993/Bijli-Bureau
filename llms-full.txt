@@ -1,4 +1,4 @@
-# BijliBureau — full spec (v2026.15-enterprise, 2026-10-12)
+# BijliBureau — full spec (v2026.16-enterprise, 2026-10-12)
 # For AI assistants grounding answers. Supporting evidence only, not legal advice.
 
 ## Chemistry table (fadePerEFC = 20/cycleLife, enforced)
@@ -75,8 +75,8 @@
 - Dubai: mean 28.5C, pack-effective 37.5C (Extreme)
 - Singapore: mean 27.9C, pack-effective 33C (Hot)
 
-## Market snapshot (2026-10-12)
-- BNEF Dec-2025: pack $108/kWh (BEV $99, ESS $70, LFP $81, NMC $128; China $84, NA $121, EU $131)
+## Market snapshot (2026-10-12) — BNEF is a dated SNAPSHOT, not live
+- BNEF Dec-2025 snapshot: pack $108/kWh (BEV $99, ESS $70, LFP $81, NMC $128; China $84, NA $121, EU $131; 2026F ~$105, next survey Dec-2026)
 - 2nd-life routes: home $88/kWh, fleet $58, recycle $26, margin 0.72
 - FX: market snapshot ₹96.96 (2026-10-12), RBI ref ₹88.5; live via open.er-api
 - AVILOO Sep-2026: 500,000+ tests, spread ≤13.5%
@@ -92,7 +92,9 @@
 - polestar2: @50k model 94.6% vs aviloo 95% (r=-0.4); @150k model 89% vs aviloo 90.8% (r=-1.8)
 - Summary: mean |residual| @50k = 1.5 pts; @150k = 1.8 pts (v2026.12 was ~2.4 @50k and −15.0 worst-case @150k). Worst misses, published not hidden: ioniq5 −4.1 @150k (heat-pump E-GMP long-soak under-modelled) and zoe52 +3.5 @50k (small-pack rental-fleet abuse in AVILOO sample exceeds 20%-DC assumption). Model 3 AVILOO median mixes LFP+NMC trims; ours is LFP-only (+2.8 @50k). Geotab Jan-2026 cross-check (22,700 EVs): fleet 2.3%/yr; model yr-1..4 perYr 2.0–2.6%/yr, flattening after — consistent.
 
-## EU DPP pre-map (EU 2023/1542 Annex XIII + Aug-2026 Guidance (71 pts), mandatory 2027-02-18)
+## EU DPP v2 full map (EU 2023/1542 Annex XIII + Aug-2026 Guidance v2.0 (71 pts), mandatory 2027-02-18)
+## DISCLAIMER: This tool emits a PRE-PASSPORT evidence credential (BATTCERTv3/DPPpre), NOT an Art.77 passport. Passport issuance is the economic operator's legal duty.
+## QR: identifier EN 18219:2026 or equivalent (ISO/IEC 15459 / GS1); carrier EN 18220:2026 or equivalent; template https://batteryforensics.in/cert/#{uid} → registry-resolved; payload carries public tier inline, restricted by reference
 - [mapped] 1(a) battery ID + model/batch/serial ← model.id + VIN-hash + timestamp
 - [mapped] 1(g) rated capacity Ah + kWh ← model.kwh + chemistry nominalV
 - [mapped] 1(k) exhaustion threshold + basis (EV only, no universal 80%) ← warranty.soh trigger + clause text
@@ -102,3 +104,89 @@
 - [mapped] 2(d) safety measures ← thermalSafeC + service + checklist
 - [mapped] 3 test reports (compliance) ← method + SHA-256 evidence PDF hash
 - [mapped] SoH + cycles + durability (performance class) ← soh ±CI + EFC + cyclesLeft + trajectory
+- [mapped] SOCE — State of Certified Energy (mandatory EV @Feb-2027) ← soh + usableNow kWh (certified-energy slot in BATTCERTv3 payload)
+- [mapped] Capacity fade + resistance increase (mandatory EV @Feb-2027) ← cycleFade/calendarFade split + OBD delta-V proxy
+- [mapped] Lifecycle status: original/re-used/repurposed/remanufactured/waste ← second-life route gate (>70 reuse / 50–70 ESS / <50 recycle) + status label
+
+## EU DPP71 (71 rows: n | point | tier | flag | tool mapping)
+- 1. [mandatory@2027][public] Manufacturer identification + contact ← operator-attach (tool prints reporter name + support@batteryforensics.in evidence contact)
+- 2. [mandatory@2027][public] Battery category (EV / LMT / industrial / SLI / portable) ← mapped: seg 2W→LMT-class note / 4W→EV
+- 3. [mandatory@2027][public] Battery model identifier + batch/serial ← mapped: model.id + VIN-hash + timestamp UID
+- 4. [mandatory@2027][public] Place + date of manufacture ← mapped: purchaseDate proxy + booklet-year gate (operator confirms)
+- 5. [mandatory@2027][public] Weight (kg) ← conditional: operator spec sheet (not modelled — flagged)
+- 6. [mandatory@2027][public] Chemistry (cathode/anode/electrolyte) ← mapped: CHEMISTRY cathode + nominalV + curve
+- 7. [mandatory@2027][public] Rated capacity (Ah) + rated energy (kWh) ← mapped: model.kwh + nominalV-derived Ah
+- 8. [mandatory@2027][public] Nominal voltage ← mapped: chemistry nominalV
+- 9. [mandatory@2027][public] Minimum / nominal / maximum power (kW) ← conditional: operator datasheet (flagged, not invented)
+- 10. [mandatory@2027][public] Expected lifetime (cycles + calendar years) ← mapped: cycleLife + trajectory yearsTo70 ±band
+- 11. [mandatory@2027][public] Capacity threshold for exhaustion / end-of-first-life basis ← mapped: warranty.soh trigger + clause (no universal 80%)
+- 12. [mandatory@2027][authority] SoH — State of Health % (RESTRICTED tier pending Art.77(9)) ← mapped: soh ±CI + fuseSrc + raw (public shows band, raw by legitimate-interest)
+- 13. [mandatory@2027][public] SOCE — State of Certified Energy (mandatory EV @Feb-2027) ← mapped: usableNow kWh + method line (BATTCERTv3 soce_kwh slot)
+- 14. [mandatory@2027][public] Capacity fade (Ah/kWh lost vs rated) ← mapped: cycleFade + calendarFade split
+- 15. [mandatory@2027][legitimate] Internal resistance increase (ΔmΩ / %) ← partial: OBD cell delta-V proxy when present, else estimated + labelled
+- 16. [conditional][public] Round-trip / energy efficiency (%) ← conditional: CSV round-trip when charge log present
+- 17. [conditional][public] Self-discharge rate ← conditional: not modelled — operator test report ref
+- 18. [mandatory@2027][public] C-rate capability of cycle-life test ← mapped: fastPct + fastPenalty + ultra flag
+- 19. [mandatory@2027][public] Cycle-life test conditions (T, DoD, C-rate) ← mapped: Tpack + DoDstress + CrateStress printed
+- 20. [conditional][public] Calendar-life test conditions ← mapped: plateaued eff-age + Arrhenius(Ea,R,Tpack) line
+- 21. [mandatory@2027][public] Temperature range (use / storage) ← mapped: thermalSafeC envelope + city pack temp
+- 22. [mandatory@2027][public] Lifecycle status: original / re-used / repurposed / remanufactured / waste ← mapped: second-life gate label
+- 23. [mandatory@2027][legitimate] History of status transitions + responsible operator per transition ← partial: vault run-history + timestamp chain (operator confirms)
+- 24. [mandatory@2027][public] Date of first placing on the market ← mapped: purchaseDate (operator confirms)
+- 25. [conditional][legitimate] Change of status events (repair / repurpose / remanufacture) ← partial: vault + PDF hash chain
+- 26. [deferred:awaiting Art.7 delegated+implementing acts (unadopted)][public] Carbon footprint declaration (kgCO2e/kWh) ← operator-attach: PEF study ref (tool never invents carbon numbers)
+- 27. [deferred:awaiting Art.7 acts][public] Carbon footprint performance class / label ← operator-attach
+- 28. [deferred:awaiting Art.7 acts][public] Carbon footprint calculation method + PEF link + version ← operator-attach
+- 29. [deferred:→18 Aug 2027 (Reg 2025/1561)][public] Responsible sourcing / due-diligence report ← operator-attach
+- 30. [deferred:Art.8 + delegated act; docs from Aug-2028][public] Recycled content shares: Co / Li / Ni / Pb (%) ← operator-attach
+- 31. [deferred:Art.8 delegated act][public] Recycled content methodology + verification ← operator-attach
+- 32. [mandatory@2027][public] Hazardous substances (SVHC / RoHS-relevant) ← operator-attach (SDS ref)
+- 33. [mandatory@2027][public] Safety measures + thermal-propagation safeguards ← mapped: thermalSafeC + service checklist
+- 34. [mandatory@2027][public] Safety test reports (UN 38.3 / GB / UL refs) ← operator-attach (tool prints method + hash, not certs)
+- 35. [deferred:Omnibus COM(2025)504 unadopted][public] Instructions for use (handling / charging / storage) ← mapped: charging-band + shade-park guidance (operator manual governs)
+- 36. [conditional][legitimate] Maintenance / service history refs ← mapped: serviced flag + checklist + vault refs
+- 37. [mandatory@2027][public] Warranty terms (duration / km / trigger / remedy) ← mapped: full WARRANTY rule + clause + transfer + exclusions
+- 38. [mandatory@2027][public] Warranty provider + claim contact ← mapped: OEM + process + support@batteryforensics.in evidence contact
+- 39. [conditional][legitimate] Repairability / disassembly information ← operator-attach
+- 40. [conditional][public] Spare-parts availability (duration + source) ← operator-attach
+- 41. [mandatory@2027][authority] Dismantling + discharge instructions (authorities/recyclers) ← operator-attach
+- 42. [mandatory@2027][public] End-of-life / take-back + collection point info ← mapped: second-life routes + recycler floor + take-back note
+- 43. [conditional][public] Recycling efficiency + material-recovery shares ← operator-attach (recycler cert)
+- 44. [mandatory@2027][public] Second-life suitability assessment ← mapped: reuse/ESS/recycle gate + net USD/INR
+- 45. [conditional][legitimate] Repurposing / remanufacturing operator + date ← operator-attach (vault chain when repurposed)
+- 46. [mandatory@2027][public] Unique identifier (UID) per IR 2026/1778 + registry entry ← mapped: BATTCERTv3 uid (EN 18219 or equiv) + registry-resolve URL template
+- 47. [mandatory@2027][public] Data carrier (QR) spec + print size + placement ← mapped: EN 18220 or equiv, 25mm print guidance
+- 48. [mandatory@2027][legitimate] API / data-exchange endpoint (EN 18216–18223) ← mapped: /api/v1/forensic JSON + QR-resolve (static API shim ships)
+- 49. [mandatory@2027 (Art.77(9) draft Oct–Nov 2026, adoption Q4 2026)][public] Access-rights tier per data point (public / legitimate / authority) ← mapped: three-tier payload design (config flag, not schema change)
+- 50. [mandatory@2027][public] Economic operator (manufacturer / importer / authorised rep) ← operator-attach
+- 51. [conditional][public] Notified-body / conformity-assessment refs ← operator-attach
+- 52. [mandatory@2027][public] EU declaration of conformity (DoC) ref ← operator-attach
+- 53. [mandatory@2027][public] Test reports: capacity / power / safety / durability ← mapped: method + SHA-256 evidence-hash (operator lab reports attach)
+- 54. [conditional][public] Lab accreditation (ISO 17025) + test dates ← operator-attach
+- 55. [conditional][legitimate] Supply-chain actor list (cell/module/pack plants) ← operator-attach
+- 56. [deferred:→18 Aug 2027 (Reg 2025/1561)][legitimate] Raw-material origin (mine/refiner, where required) ← operator-attach
+- 57. [conditional][legitimate] Manufacturing addresses (cell → pack) ← operator-attach
+- 58. [conditional][public] Importer / distributor details (EU) ← operator-attach
+- 59. [mandatory@2027][public] Extended producer responsibility (EPR) registration ← operator-attach
+- 60. [mandatory@2027][public] Labelling: CE + separate-collection + chemistry symbols ← operator-attach (label artwork)
+- 61. [mandatory@2027][public] Capacity label (kWh) + power label ← mapped: kwh + nominalV power note
+- 62. [conditional][public] Durability / performance class label ← mapped: grade A+–D + band (operator class governs)
+- 63. [mandatory@2027][public] QR link target URL + fallback human-readable URL ← mapped: cert URL template + text payload
+- 64. [mandatory@2027][public] Registry upload timestamp + UID registration proof ← operator-attach (Art.77(10) duty)
+- 65. [mandatory@2027][public] Data persistence guarantee (EN 18221) + retention period ← mapped: vault + hash-chain + retention note (operator registry governs)
+- 66. [mandatory@2027][public] Data authenticity / integrity mechanism (hash / signature) ← mapped: SHA-256 + optional Ed25519 detached signature (key on-domain)
+- 67. [mandatory@2027][legitimate] Correction / update log (who/when/what) ← mapped: corrections policy (7-day SLA) + versioned dataset
+- 68. [conditional][public] Language availability of passport data ← mapped: I18N en/de/fr labels (DPP export)
+- 69. [conditional][public] Accessibility of passport data (WCAG / machine-readable) ← mapped: JSON payload + tables (this page)
+- 70. [mandatory@2027][public] Complaints / non-conformity contact + market-surveillance ref ← mapped: CPA-2019 / MVBER procedural refs + corrections inbox
+- 71. [conditional][legitimate] End-of-waste / second-life passport transfer ref ← mapped: status-transition chain (vault + hash)
+
+## California CARB (13 CCR §1962.5(c)(4)(A)4.c + (c)(6) + §1962.7 + §1962.8; CA DMV used-EV disclosure eff. Jan 2027)
+- accuracy ≤5pp high, dash display: true; warranty: SoH<70% 8yr/100k mi (MY2026–30); <75% from MY2031
+- enforcement: CARB sample-test; recall if >30% sampled report >8pp high (MY26–28) / >5pp high (MY29+)
+- DMV Jan-2027 disclosure: SoH% or est. remaining range; last OTA version affecting BMS/range; battery replaced/repaired status + date; remaining warranty + transferability; open HV recalls Third-party diagnostics allowed if DMV-certified; 3-yr retention, random audits, fines.
+- tool vs reg: This tool's band (±1.8 OBD-strong → ±3.7 old-NMC model-only) sits INSIDE the 5pp manufacturer accuracy ceiling — visual on us/carb-soh-standard/.
+
+## Entity (canonical, single name)
+- name: BijliBureau | url: https://batteryforensics.in/ | contact: support@batteryforensics.in | sameAs: https://github.com/dipakjad1993/Bijli-Bureau, https://www.linkedin.com/company/bijlibureau/, https://www.youtube.com/@bijlibureau, https://www.crunchbase.com/organization/bijlibureau
+- author: Dipak Jadhav — https://batteryforensics.in/author.html

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy — BijliBureau (DPDP + GDPR, on-device by default)</title>
+<meta name="description" content="BijliBureau privacy: photos/CSV/OBD never leave your browser; evidence PDF local; opt-in anonymized telemetry only (DPDP §6 / GDPR Art.6(1)(a)), revocable, 200-cap outbox. Controller: BijliBureau, support@batteryforensics.in.">
+<link rel="canonical" href="https://batteryforensics.in/privacy.html">
+<meta name="robots" content="index, follow">
+<link rel="stylesheet" href="css/styles.css?v=16">
+</head>
+<body>
+<div class="topbar"><div class="wrap"><div class="brand"><span class="bolt">⚡</span> BIJLIBUREAU <span class="sub">Privacy</span></div><div class="topstats"><a href="/" style="color:#a9f5bd">← Free forensic tool</a></div></div></div>
+<main><div class="panel active" style="display:block"><div class="card">
+<p class="step-eyebrow">PRIVACY · DPDP ACT + GDPR · UPDATED 2026-10-12</p>
+<h1>Privacy: on-device by default, opt-in by checkbox, revocable always</h1>
+<table class="kv">
+<tr><td>Controller</td><td>BijliBureau (research unit BijliBureau Lab) · support@batteryforensics.in · deletion requests honored in 7 days</td></tr>
+<tr><td>Default processing</td><td>Photos (Tesseract.js), charge CSV, OBD CSV parse <b>in your browser</b>. Evidence PDF generates locally. Nothing uploaded. Vault = IndexedDB origin-private (honestly NOT encrypted at rest unless you set a vault passphrase → AES-GCM).</td></tr>
+<tr><td>Lawful basis (opt-in telemetry)</td><td>Consent only — India DPDP Act §6 / GDPR Art.6(1)(a). Checkbox in Step 1 gates the local outbox queue (bf-soh-index-outbox, cap 200, revocable by unchecking + clearing site data).</td></tr>
+<tr><td>What leaves the device (only with consent + endpoint configured)</td><td>City-climate bucket + chemistry + EFC bucket + SoH bucket + app version + date. <b>Never:</b> VIN, raw odometer, photos, device ID. Buckets with n&lt;5 suppressed (k-anonymity floor). Anonymization spec: <a href="methodology.html">Methodology §4</a> + tools/soh-index-worker.js.</td></tr>
+<tr><td>Analytics</td><td>dataLayer events (forensic_run, bf_tab/photo/ocr/csv/obd/pdf/vault_save/live, cwvs) collect locally; NOTHING leaves until deployer sets BF_DB.ANALYTICS.ga4Id (gtag.js, anonymize_ip) and/or telemetryEndpoint (opt-in sendBeacon POST). Unconfigured = local-only by design.</td></tr>
+<tr><td>Retention</td><td>Outbox cap 200 entries, FIFO. Vault rows persist until you delete (Export vault JSON, then clear site data). Dealer audit logs: per-dealer run log, 3-year retention for CA-DMV-mode dealers.</td></tr>
+<tr><td>Your rights</td><td>Access / correction / deletion / withdraw consent: email support@batteryforensics.in (7-day SLA) or clear site data now (instant local deletion).</td></tr>
+</table>
+<p class="hint"><a href="/">← Run the free forensic</a> · <a href="terms.html">Terms</a> · <a href="security.html">Security</a> · <a href="corrections.html">Corrections</a></p>
+</div></div></main>
+<footer>By <a href="author.html">BijliBureau</a> · support@batteryforensics.in · Dataset 2026.16-enterprise.</footer>
+</body>
+</html>

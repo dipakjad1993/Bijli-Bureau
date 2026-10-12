@@ -1,5 +1,5 @@
 /* ============================================================================
- * BIJLIBUREAU ENGINE v2026.15-enterprise — SoH Lab: cycle + calendar (Arrhenius)
+ * BIJLIBUREAU ENGINE v2026.16-enterprise — SoH Lab: cycle + calendar (Arrhenius)
  *   + C-rate + SoC + Bayesian CSV/OBD fusion + honest Monte Carlo 90% CI
  * Method (documented in-app & in PDF for service-advisor battles):
  *   EFC (Equivalent Full Cycles) = totalKm(odometer) / certified_range_new

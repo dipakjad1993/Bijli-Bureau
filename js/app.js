@@ -1,4 +1,4 @@
-/* BijliBureau v2026.15-enterprise — app orchestration (OCR lazy + CSV/OBD + hash router + vault + DPP QR) */
+/* BijliBureau v2026.16-enterprise — app orchestration (OCR lazy + CSV/OBD + hash router + vault + DPP QR v3 + Ed25519 evidence signatures) */
 "use strict";
 window.BF = {};
 (function(){
@@ -68,6 +68,32 @@ async function sha256(str){
     return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
   }catch(e){ let h=0; for(let i=0;i<str.length;i++){h=(h*31+str.charCodeAt(i))>>>0;} return "fnv1a-"+h.toString(16); }
 }
+/* ---------- Ed25519 detached evidence signatures (enterprise trust) ----------
+   Optional dealer mode: if localStorage bf-ed25519-pub exists, makePDF appends
+   a detached signature over the SHA-256 payload hash. Keys are generated
+   on-domain via tools/generate-key.js (or WebCrypto ECDSA-P256 fallback here);
+   public key published at /.well-known/bijlibureau-key.json + transparency log
+   entry. Verification: node tools/verify-signature.js or the cert page.
+   Until a key is configured, PDFs are honestly labelled "timestamped + SHA-256
+   hashed" (never "signed"). */
+async function trySignHash(hexHash){
+  try{
+    const pubJwkRaw = localStorage.getItem("bf-ed25519-pub");
+    const privJwkRaw = localStorage.getItem("bf-ed25519-priv");
+    if(!pubJwkRaw || !privJwkRaw) return { signed:false, note:"timestamped + SHA-256 hashed (no signing key configured — see security.html)" };
+    const privJwk = JSON.parse(privJwkRaw);
+    const key = await crypto.subtle.importKey("jwk", privJwk, { name:"ECDSA", namedCurve:"P-256" }, false, ["sign"]);
+    const sigBuf = await crypto.subtle.sign({ name:"ECDSA", hash:"SHA-256" }, key, new TextEncoder().encode(hexHash));
+    const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sigBuf)));
+    return { signed:true, alg:"ECDSA-P256-SHA256 (WebCrypto; Ed25519 via tools/generate-key.js for offline CLI)", sig:sigB64, pub:JSON.parse(pubJwkRaw) };
+  }catch(e){ return { signed:false, note:"timestamped + SHA-256 hashed (signing unavailable: "+((e&&e.message)||e)+")" }; }
+}
+/* PWA: register Service Worker for offline-first app shell (cache-first shell+DB, network-first FX). */
+try{
+  if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+    window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+  }
+}catch(e){}
 
 /* ---------- guided stepper + HASH ROUTER ---------- */
 const STEPS = ["intake","soh","warranty","second","resale","evidence","intel"];
@@ -228,7 +254,7 @@ function init(){
   $("w_lookup").onchange = e=>renderLookup(e.target.value);
   const cs=$("f_city");
   Object.keys(DB().CLIMATE).forEach(c=>{ const o=document.createElement("option"); o.textContent=c; if(c==="Chennai")o.selected=true; cs.appendChild(o); });
-  $("stamp").textContent = "Dataset "+DB().VERSION+" · verified "+DB().MARKET.updated+" · BNEF/AVILOO/TPEM/Ola/EU-2023-1542";
+  $("stamp").textContent = "Dataset "+DB().VERSION+" · verified "+DB().MARKET.updated+" · BNEF-Dec2025-snapshot/AVILOO/TPEM/Ola/EU-2023-1542/CARB";
   try{
     const ld=document.getElementById("ld-app");
     if(ld){ const j=JSON.parse(ld.textContent); j.softwareVersion=DB().VERSION; j.dateModified=DB().MARKET.updated; ld.textContent=JSON.stringify(j); }
@@ -564,7 +590,7 @@ function render(p,f,fp,w,s2,rs,tr){
   $("t_range").innerHTML=f.rangeNow+" <small>km</small>";
   $("t_cyc").innerHTML=f.cyclesLeft.toLocaleString("en-IN");
   $("r_gradeNote").textContent=DB().gradeIN[grade]+" · Health Card: "+f.soh+"% SoH (raw "+f.sohRaw+"%, 90% CI "+f.lo90+"–"+f.hi90+"% ±"+f.ci90+"%, "+f.fuseSrc+" w="+f.fuseWeight+") · Usable "+f.usableNow+" of "+p.model.kwh+" kWh "+p.model.chem+" · Range today "+f.rangeNow+" km vs "+p.model.rangeNew+" km new (−"+f.rangeLost+" km) · "+f.cyclesLeft.toLocaleString("en-IN")+" equivalent cycles left of ~"+DB().CHEMISTRY[p.model.chem].cycleLife+" chemistry budget · Degrading "+tr.perYr+"%/yr → ~"+f.yearsTo70+" yr to 70% at current habit · AVILOO Sep-2026 benchmark: 500k tests ≤13.5% spread, Model Y 94.4%@50k→90.3%@150k — your pack vs fleet median in Evidence PDF.";
-  $("r_ciNote").textContent=`Honest uncertainty band (v2026.15, audit-fixed): this ${f.soh}% carries a 90% band of ${f.lo90}–${f.hi90}% (±${f.ci90}%). Composition disclosed: Monte Carlo sampling ±${f.mcHalf}% (odo ±2%, Tpack ±1.5°C, age ±15d jitter — all really sampled, n=600) PLUS ${p.model.chem} model-form floor ±${f.modelForm}% (AVILOO intra-model spread ≤13.5% expressed per-vehicle, grows with age). ci90 = √(mc² + floor²), capped by evidence: ${f.fuseSrc} (w=${f.fuseWeight}). Model-only band ≈ ±${f.modelForm}% · with solid CSV ≤ ±3.0% · with strong OBD ≤ ±1.8%. Raw model ${f.sohRaw}% kept for auditors + hashed. Re-run every 60–90 days; when the band straddles your trigger (buffer ≤2.5%) you are in the FILE-SOON window — act, don't average.`;
+  $("r_ciNote").textContent=`Honest uncertainty band (v2026.16, audit-fixed): this ${f.soh}% carries a 90% band of ${f.lo90}–${f.hi90}% (±${f.ci90}%). Composition disclosed: Monte Carlo sampling ±${f.mcHalf}% (odo ±2%, Tpack ±1.5°C, age ±15d jitter — all really sampled, n=600) PLUS ${p.model.chem} model-form floor ±${f.modelForm}% (AVILOO intra-model spread ≤13.5% expressed per-vehicle, grows with age). ci90 = √(mc² + floor²), capped by evidence: ${f.fuseSrc} (w=${f.fuseWeight}). Model-only band ≈ ±${f.modelForm}% · with solid CSV ≤ ±3.0% · with strong OBD ≤ ±1.8%. Raw model ${f.sohRaw}% kept for auditors + hashed. Re-run every 60–90 days; when the band straddles your trigger (buffer ≤2.5%) you are in the FILE-SOON window — act, don't average.`;
   $("r_breakdown").innerHTML=kv({
     "Equivalent full cycles (EFC)":f.efc+" <small>(odo "+(p.kms||0).toLocaleString("en-IN")+" km ÷ certified "+p.model.rangeNew+" km; ODOMETER-ANCHORED — CSV never extrapolates EFC, CSV informs health only; 2W packs cycle faster per km)</small>",
     "Cycle fade":"−"+f.cycleFade+"% <small>(EFC × "+DB().CHEMISTRY[p.model.chem].fadePerEFC_pct+"%/EFC "+p.model.chem+" × DoD stress ×"+f.dodStress+" (avg depth "+f.dod+"%) × C-rate ×"+f.crateStress+" ("+p.fastPct+"% DC-fast, penalty "+DB().CHEMISTRY[p.model.chem].fastPenalty+"))</small>",
@@ -656,13 +682,30 @@ function restoreFromShare(b64){
   }catch(e){ return false; }
 }
 
-/* ---------- QR (pre-DPP dual payload) ---------- */
+/* ---------- QR (pre-DPP dual payload v3: BATTCERTv3 + DPPpre + SOCE + access tiers) ----------
+   v2026.16: payload carries SOCE slot (mandatory EV @Feb-2027), lifecycle status
+   (original/re-used/repurposed/remanufactured/waste), and explicit
+   public / legitimate-interest / authority sections so the Art.77(9) act flips
+   a config flag, not a schema. Disclaimer printed: pre-passport credential,
+   NOT an Art.77 passport. */
 async function buildQR(p,f,w,grade,rs){
   if(!window.QRCode){ ensureLib("qr"); }
   const vinH = await sha256(($("e_vin").value||"no-vin")+"|"+p.model.id);
-  const payload=`BATTCERTv2|${p.model.brand} ${p.model.model}|SoH ${f.soh}%±${f.ci90}|Grade ${grade}|${f.rangeNow}/${p.model.rangeNew}km|odo ${p.kms}km|${p.city}|${new Date().toISOString().slice(0,10)}|EFC ${f.efc}|${f.fuseSrc}|VINhash ${vinH.slice(0,12)}`;
+  const soceKwh = +f.usableNow.toFixed(2);
+  const lifecycle = f.soh>70 ? "original (reuse-grade)" : (f.soh>=50 ? "re-used-candidate (ESS-grade)" : "waste-candidate (recycle floor)");
+  const cfgTier = (window.BF_ACCESS_TIER || "public");
+  const payload=`BATTCERTv3|BijliBureau — EV Battery Report Card|${p.model.brand} ${p.model.model}|SoH ${f.soh}%±${f.ci90}|SOCE ${soceKwh}kWh|Grade ${grade}|${f.rangeNow}/${p.model.rangeNew}km|odo ${p.kms}km|${p.city}|${new Date().toISOString().slice(0,10)}|EFC ${f.efc}|${lifecycle}|tier:${cfgTier}|${f.fuseSrc}|VINhash ${vinH.slice(0,12)}`;
   $("qrPayload").textContent=payload;
-  const dpp = { passport:"pre-DPP EU2023/1542", battery:p.model.brand+" "+p.model.model, kwh:p.model.kwh, chem:p.model.chem, soh_pct:f.soh, soh_ci90:f.ci90, soh_raw:f.sohRaw, efc:f.efc, cycles_left:f.cyclesLeft, warranty_trigger_pct:w.w.soh, warranty_status:w.status, vin_sha256:vinH.slice(0,16), method:"EFC+Arrhenius+Bayes", at:new Date().toISOString(), fields_mapped:DB().DPP_MAP.fields.length, mandatory_from:DB().DPP_MAP.mandatory_from };
+  const dpp = { passport:"pre-DPP EU2023/1542 (NOT an Art.77 passport — issuance is the economic operator's duty)",
+    issuer:"BijliBureau — EV Battery Report Card", battery:p.model.brand+" "+p.model.model, kwh:p.model.kwh, chem:p.model.chem,
+    soh_pct:f.soh, soh_ci90:f.ci90, soh_raw:f.sohRaw, soce_kwh:soceKwh,
+    capacity_fade_pct:+(100-f.soh).toFixed(2), resistance_proxy_mv:(p.obd&&p.obd.maxDelta_mV!=null?p.obd.maxDelta_mV:null),
+    lifecycle_status:lifecycle, efc:f.efc, cycles_left:f.cyclesLeft,
+    warranty_trigger_pct:w.w.soh, warranty_status:w.status, vin_sha256:vinH.slice(0,16),
+    method:"EFC+Arrhenius+Bayes", at:new Date().toISOString(),
+    access_tiers:{ public:["soh_pct","soce_kwh","grade","cycles","trigger"], legitimate_interest:["vin_hash","deltaV","service_refs"], authority:["full_vin","raw_telemetry"] },
+    active_tier:cfgTier, qr_spec:(DB().DPP_MAP&&DB().DPP_MAP.qrSpec)||null,
+    fields_mapped:(DB().DPP71||[]).length||12, mandatory_from:(DB().DPP_MAP&&DB().DPP_MAP.mandatory_from)||"2027-02-18" };
   if($("qrDpp")) $("qrDpp").textContent="DPPpre::"+JSON.stringify(dpp);
   try{
     const box=$("qrBox");
@@ -679,7 +722,7 @@ async function buildQR(p,f,w,grade,rs){
 
 function letter(p,f,w){
   const d=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});
-  return `To: Service Manager, ${w.w.oem} Authorised Service Centre\nDate: ${d}\nSubject: HV Battery Warranty Claim — ${p.model.brand} ${p.model.model} (${$("e_vin").value||"VIN/Reg: ____"}) — SoH ${f.soh}% ±${f.ci90}% vs ${w.w.soh}% trigger\n\nDear Sir/Madam,\nMy vehicle (purchased ${p.purchaseDate.slice(0,7)}, odo ${p.kms} km) shows State of Health ${f.soh}% (90% CI ${f.lo90}–${f.hi90}%, Grade ${DB().gradeOf(f.soh)}, raw ${f.sohRaw}%), computed by EFC-throughput (odometer-anchored) + Arrhenius calendar + C-rate + Bayesian CSV/OBD fusion (detail + photos + charge log in attached Evidence Pack, SHA-256 on PDF).\n\nWarranty position: ${w.w.years} yr / ${w.w.km>9000000?"unlimited":w.w.km.toLocaleString("en-IN")} km, trigger below ${w.w.soh}% SoH.\nClause: "${w.w.clause}"\nStatus: ${w.status}. Time left ${w.yrsLeft} yr; km left ${isFinite(w.kmLeft)?w.kmLeft.toLocaleString("en-IN"):"unlimited"}.\n\nI request: (1) authorised BMS SoH readout in writing with threshold stated; (2) warranty repair/replacement restoring pack to ≥80% SoH per terms where applicable; (3) job card + TPEM/OEM approval reference.\nVehicle serviced on schedule at OEM centre: ${(p.serviced?"yes":"NO — backfill before filing")}; use: ${(p.commercial?"commercial (RC proof enclosed)":"private")}. "Normal degradation" cannot apply where measured SoH (incl. CI) is ${w.buffer>=0?"+":""}${w.buffer}% vs the contractual floor — kindly confirm or deny in writing with matched SoH figure.\n\nEnclosed: timestamped Evidence Pack PDF (photos, OCR, method, trajectory ±CI, cert QR, hash).\n\nRegards,\n${$("e_name").value||"Owner"} · ${$("e_vin").value||"Contact: ____"}\nCC: ${w.w.oem} customer support (email, for paper trail)\n\n— Supporting evidence only, not legal advice. Verify booklet year. India: CPA 2019 District Commission escalation if denied in writing.`;
+  return `To: Service Manager, ${w.w.oem} Authorised Service Centre\nDate: ${d}\nSubject: HV Battery Warranty Claim — ${p.model.brand} ${p.model.model} (${$("e_vin").value||"VIN/Reg: ____"}) — SoH ${f.soh}% ±${f.ci90}% vs ${w.w.soh}% trigger\n\nDear Sir/Madam,\nMy vehicle (purchased ${p.purchaseDate.slice(0,7)}, odo ${p.kms} km) shows State of Health ${f.soh}% (90% CI ${f.lo90}–${f.hi90}%, Grade ${DB().gradeOf(f.soh)}, raw ${f.sohRaw}%), computed by EFC-throughput (odometer-anchored) + Arrhenius calendar + C-rate + Bayesian CSV/OBD fusion (detail + photos + charge log in attached Evidence Pack, SHA-256 on PDF).\n\nWarranty position: ${w.w.years} yr / ${w.w.km>9000000?"unlimited":w.w.km.toLocaleString("en-IN")} km, trigger below ${w.w.soh}% SoH.\nClause: "${w.w.clause}"\nStatus: ${w.status}. Time left ${w.yrsLeft} yr; km left ${isFinite(w.kmLeft)?w.kmLeft.toLocaleString("en-IN"):"unlimited"}.\n\nI request: (1) authorised BMS SoH readout in writing with threshold stated; (2) warranty repair/replacement restoring pack to ≥80% SoH per terms where applicable; (3) job card + TPEM/OEM approval reference.\nVehicle serviced on schedule at OEM centre: ${(p.serviced?"yes":"NO — backfill before filing")}; use: ${(p.commercial?"commercial (RC proof enclosed)":"private")}. "Normal degradation" cannot apply where measured SoH (incl. CI) is ${w.buffer>=0?"+":""}${w.buffer}% vs the contractual floor — kindly confirm or deny in writing with matched SoH figure.\n\nEnclosed: timestamped Evidence Pack PDF (photos, OCR, method, trajectory ±CI, cert QR, hash).\n\nRegards,\n${$("e_name").value||"Owner"} · ${$("e_vin").value||"Contact: ____"}\nCC: ${w.w.oem} customer support (email, for paper trail)\n\n— Supporting evidence only, not legal advice. Verify booklet year. India: if denied in writing, file via CPA 2019 District Commission on e-daakhil https://edaakhil.nic.in/ (helpline 1915).`;
 }
 
 /* ---------- OEM rulebook browser (works pre-run, with sources) ---------- */
@@ -778,7 +821,7 @@ async function makePDF(){
   const grade=DB().gradeOf(f.soh); let y=14;
   const h = LAST.hash || await sha256(JSON.stringify(shareState()));
   const line=(t,s=11,b=false)=>{doc.setFont("helvetica",b?"bold":"normal");doc.setFontSize(s); const tt=doc.splitTextToSize(t,182); doc.text(tt,14,y); y+=tt.length*s*0.55+2; if(y>275){doc.addPage();y=14;}};
-  line("BIJLIBUREAU — EVIDENCE PACK v2026.15 (Warranty Claim Assassin)",14,true);
+  line("BIJLIBUREAU — EVIDENCE PACK v2026.16 (EV Battery Report Card)",14,true);
   line(`Generated ${new Date().toLocaleString("en-IN")} · Owner: ${$("e_name").value} · VIN/Reg: ${$("e_vin").value||"—"} · SHA-256: ${h.slice(0,32)}…`,9);
   line(`Vehicle: ${p.model.brand} ${p.model.model} · ${p.model.kwh} kWh ${p.model.chem} · Purchased ${p.purchaseDate.slice(0,7)} · Odo ${p.kms} km · ${p.city}`,10,true);
   line(`HEALTH CARD: SoH ${f.soh}% (90% band ${f.lo90}-${f.hi90}%, raw ${f.sohRaw}%, ${f.fuseSrc}) · Grade ${grade} · Usable ${f.usableNow}/${p.model.kwh} kWh · Range ${f.rangeNow}/${p.model.rangeNew} km · EFC ${f.efc} · ${f.cyclesLeft} cycles left · band = MC ±${f.mcHalf}% + ${p.model.chem} field floor ±${f.modelForm}%`,11,true);
@@ -793,15 +836,21 @@ async function makePDF(){
   line(`RESALE: ${rs.loStr} – ${rs.hiStr} (Grade ${rs.grade}) · dealer bid ≈${rs.dealerStr} · at stake ${rs.atStake}`,10,true);
   line(`SECOND-LIFE: ${s2.usableKwh} kWh usable → BEST ${s2.best.route} ≈ $${s2.best.netUsd} / ₹${s2.best.netInr.toLocaleString("en-IN")} net (FX ₹${DB().MARKET.inrUsd})`,10,true);
   s2.routes.forEach(r=>line(`• ${r.route}: $${r.netUsd} net (${r.why})`,9));
-  line("METHOD v2026.15: EFC=odo/range_new (odometer-anchored); cycle=EFC^0.85×(20/cycleLife)×DoD×Crate; calendar=plateaued eff-age×base×Arrhenius×SoC (live ambient nudges Tpack ±1.75°C max); CSV health vs DRIVER baseline (not certified range) with exp(-stale/540) recency decay, OBD w≤0.8; SoH raw+clamped 45–100; 90% band = √(MC²+field-floor²). Residuals vs AVILOO published in Methodology §6.",8);
+  line("METHOD v2026.16: EFC=odo/range_new (odometer-anchored); cycle=EFC^0.85×(20/cycleLife)×DoD×Crate; calendar=plateaued eff-age×base×Arrhenius×SoC (live ambient nudges Tpack ±1.75°C max); CSV health vs DRIVER baseline (not certified range) with exp(-stale/540) recency decay, OBD w≤0.8; SoH raw+clamped 45–100; 90% band = √(MC²+field-floor²). Residuals vs AVILOO published in Methodology §6.",8);
   line("OCR transcript — dash/label/invoice (abridged):",9,true);
   ["ocr1","ocr2","ocr3"].forEach((id,i)=>line(`[Photo ${i+1}] `+($(id).textContent||"—").slice(0,150),8));
   line("Charge log rows used: "+(csvData.n||0)+(csvData.health?` · measured SoH≈${csvData.health}% over ~${csvData.days}d`:" · model-only"),8);
   line("Cert QR: "+($("qrPayload").textContent||"—"),8);
   line("DPPpre: "+($("qrDpp").textContent||"—").slice(0,400),8);
+  line("Pre-passport notice: BATTCERTv3/DPPpre is a pre-passport evidence credential, NOT an Art.77 EU Battery Passport. Passport issuance is the economic operator's legal duty.",8,true);
+  try{
+    const sig = await trySignHash(h);
+    if(sig.signed){ line("Detached signature ("+sig.alg+"): "+String(sig.sig).slice(0,120)+"… Verify: /.well-known/bijlibureau-key.json + node tools/verify-signature.js",8); LAST.sig = sig; }
+    else { line("Integrity: "+sig.note+" · Full SHA-256: "+h,8); }
+  }catch(e){ line("Integrity: timestamped + SHA-256 hashed · Full SHA-256: "+h,8); }
   line("Sources: "+DB().MARKET.sources.join("; "),8);
   line("Consent: "+(LAST.consent?"opt-in anonymized telemetry YES (revocable)":"local-only, no telemetry")+" · DPDP/GDPR. Declaration: auto-generated locally; owner attests odo/photos genuine. Supporting evidence only — demand OEM BMS readout in writing.",9,true);
-  doc.save("battery-forensics-evidence.pdf");
+  doc.save("bijlibureau-evidence.pdf");
   track({ event:"bf_pdf", soh:f.soh });
 }
 

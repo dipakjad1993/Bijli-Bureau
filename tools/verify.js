@@ -1,8 +1,8 @@
 /* BijliBureau — release verifier (ships in repo).
  * Run: node tools/verify.js
- * Checks: (1) DOM contract — every $("id") in js/app.js exists in index.html
- * (2) MODELS ↔ WARRANTIES ↔ sitemap 1:1:1, both directions
- * (3) every sitemap URL resolves to a file (4) banned leftovers scan. */
+ * Checks: (1) DOM contract (2) MODELS ↔ WARRANTIES ↔ sitemap 1:1:1
+ * (3) every sitemap URL resolves (4) banned leftovers incl. example inbox +
+ *     split-brain brand in schema/PDF/QR paths (5) required enterprise assets. */
 "use strict";
 const fs = require("fs");
 const path = require("path");
@@ -17,7 +17,7 @@ const ok = (m) => console.log("OK   " + m);
   const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   const refs = [...app.matchAll(/\$\(\s*["']([\w-]+)["']\s*\)/g)].map((m) => m[1]);
   const ids = new Set([...html.matchAll(/id=\s*["']([\w-]+)["']/g)].map((m) => m[1]));
-  ids.add("stepBar"); // dynamically created in buildStepper before use
+  ids.add("stepBar");
   const miss = [...new Set(refs)].filter((r) => !ids.has(r));
   console.log(`dom: ${refs.length} refs, ${new Set(refs).size} unique`);
   if (miss.length) fail("dom missing ids: " + miss.join(", "));
@@ -56,41 +56,50 @@ const ok = (m) => console.log("OK   " + m);
   }
   if (missing) fail(missing + " sitemap URLs without files");
   else ok("sitemap files " + locs.length + "/" + locs.length + " resolve");
-  // required assets
-  for (const f of ["og/hero-card.png", "llms-full.txt", "us/index.html", "methodology.html",
-    "soh-calculator/index.html", "eu-battery-passport-qr/index.html",
-    "second-life-value/index.html", "used-ev-resale-cert/index.html"])
+  // DPP71 integrity: must be 71 rows
+  if ((DB.DPP71 || []).length !== 71) fail("DPP71 rows = " + ((DB.DPP71 || []).length) + " (need 71)");
+  else ok("DPP71 71/71 flagged rows");
+  if (!DB.CARB || DB.CARB.sohAccuracyPp !== 5) fail("CARB layer missing");
+  else ok("CARB MY2026 layer present");
+  if (!DB.ENTITY || !DB.ENTITY.sameAs || DB.ENTITY.sameAs.length < 3) fail("ENTITY sameAs missing");
+  else ok("ENTITY sameAs (" + DB.ENTITY.sameAs.length + " links)");
+  // required assets (enterprise set)
+  for (const f of ["og/hero-card.png", "llms.txt", "llms-full.txt", "us/index.html", "us/carb-soh-standard/index.html",
+    "soh-index/index.html", "methodology.html", "author.html", "corrections.html", "privacy.html", "terms.html",
+    "security.html", "demo-chapters.html", "sw.js", "SBOM.json", "SECURITY.md", "api/openapi.json",
+    ".well-known/bijlibureau-key.json", "soh-calculator/index.html", "eu-battery-passport-qr/index.html",
+    "second-life-value/index.html", "used-ev-resale-cert/index.html", "tests/smoke.spec.js"])
     if (!fs.existsSync(path.join(ROOT, f))) fail("missing asset: " + f);
   ok("required assets present");
 }
 
-// 4. banned leftovers
+// 4. banned leftovers (strict-everywhere: example inbox is now a hard fail)
 {
-  const banned = ["battery-forensics.example.com", "Example you asked", "clean-energy/lithium-ion",
-    "v2026.12-enterprise", "v2026.13-enterprise", "2026.13-enterprise"];
   const files = ["index.html", "methodology.html", "README.md", "robots.txt", "sitemap.xml",
-    "llms.txt", "llms-full.txt", "js/database.js", "js/forensics.js", "js/app.js"];
-  let hits = 0;
-  for (const f of files) {
-    const t = fs.readFileSync(path.join(ROOT, f), "utf8");
-    for (const b of banned) if (t.includes(b)) { hits++; console.log(`  leftover "${b}" in ${f}`); }
-  }
-  // allow historical mentions inside changelogs
-  if (hits) console.log("(note: changelog-history mentions are benign if intentional)");
-  const strict = ["battery-forensics.example.com", "Example you asked", "clean-energy/lithium-ion"];
-  // strict: placeholder domain + retired brand tokens anywhere; scaffolding copy
-  // only in LIVE user-facing files (changelog narratives describing a deletion
-  // are benign and excluded by the file filter below)
+    "llms.txt", "llms-full.txt", "js/database.js", "js/forensics.js", "js/app.js", "tools/build-pages.js"];
   const strictEverywhere = ["battery-forensics.example.com", "clean-energy/lithium-ion",
-    "Battery Forensics", "BATTERY FORENSICS"];
+    "Battery Forensics", "BATTERY FORENSICS", "lab@example.com", "Example you asked",
+    "v2026.12-enterprise", "v2026.13-enterprise", "v2026.15-enterprise", "?v=15",
+    "courtroom-grade", "Courtroom-grade", "BATTCERTv2|"];
   let hard = 0;
   for (const f of files) {
-    const t = fs.readFileSync(path.join(ROOT, f), "utf8");
-    for (const b of strictEverywhere) if (t.includes(b)) { hard++; console.log(`  leftover "${b}" in ${f}`); }
-    if (["js/app.js", "index.html"].includes(f) && t.includes("Example you asked")) hard++;
+    const fp = path.join(ROOT, f);
+    if (!fs.existsSync(fp)) continue;
+    const t = fs.readFileSync(fp, "utf8");
+    for (const b of strictEverywhere) {
+      if (b === "lab@example.com" && f === "tools/build-pages.js") continue;
+      if (t.includes(b)) { hard++; console.log(`  leftover "${b}" in ${f}`); }
+    }
   }
-  if (hard) fail(hard + " hard leftovers (domain/scaffolding/BNEF URL)");
-  else ok("no hard leftovers (placeholder domain, scaffolding copy, BNEF path)");
+  // schema/PDF/QR canonical-name gate: ld-app + PDF header + QR payload must say Report Card, never Assassin
+  for (const [f, needle] of [["index.html", '"name":"BijliBureau — EV Battery Report Card"'], ["js/app.js", "BATTCERTv3|BijliBureau"]]) {
+    const t = fs.readFileSync(path.join(ROOT, f), "utf8");
+    if (!t.includes(needle)) { hard++; console.log(`  canonical brand missing in ${f} (need ${needle})`); }
+  }
+  const idxHtml = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  if (idxHtml.includes('"name":"BijliBureau — Warranty Claim Assassin"')) { hard++; console.log('  split-brain brand still in ld-app'); }
+  if (hard) fail(hard + " hard leftovers / brand-split (see above)");
+  else ok("no hard leftovers; canonical brand single-name in schema/PDF/QR");
 }
 console.log(fails === 0 ? "VERIFY PASS" : `VERIFY FAIL (${fails})`);
 process.exit(fails === 0 ? 0 : 1);

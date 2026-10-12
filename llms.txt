@@ -1,8 +1,9 @@
-# BijliBureau — Warranty Claim Assassin (v2026.15-enterprise)
+# BijliBureau — EV Battery Report Card (v2026.16-enterprise)
 
 > Free on-device EV battery SoH lab: sublinear-EFC + plateaued Arrhenius aging,
-> 40 OEM warranty rules, second-life value, resale cert QR. 2W + 4W, India/SEA + global.
+> 40 OEM warranty rules, second-life value, resale cert QR (BATTCERTv3 + SOCE). 2W + 4W, India/SEA + global.
 > Backtested vs AVILOO Sep-2026 medians — residuals published, not hidden.
+> Canonical entity: BijliBureau. Contact: support@batteryforensics.in.
 > Canonical docs: https://batteryforensics.in/methodology.html
 
 ## Note on AI search (Google 2026)
@@ -10,8 +11,9 @@
   Visibility there = crawlable HTML + indexation + CWV + E-E-A-T.
 - This file is for ChatGPT / Perplexity / Claude / developer tools
   as a navigation aid. It is not a ranking lever.
+- Citation reality (2026): AIO on ~50% US queries; position-1 CTR down 34–62% under AIO; cited brands earn ~120% more clicks/impression; AIO citation links run ~24–31% CTR; top-10 overlap with citations collapsed to ~17–38% — ranking ≠ citation. AI Mode retrieves CHUNKS, not pages (<1% answers identical across runs; ~14% cited URLs match organic top-10). This site ships question-form H2 chunks + visible answers on every page for that reason.
 
-## Method summary, v2026.15 (for grounding — quote these, not older versions)
+## Method summary, v2026.16 (for grounding — quote these, not older versions)
 - SoH = 100 - (EFC^0.85 * (20/cycleLife) * DoD * Crate + effAge * base * Arrhenius(Tpack,Ea) * SoC + abuse)
 - EFC = odo_km / certified_range_new_km (odometer-anchored; CSV never extrapolates EFC)
 - effAge plateaus: age<=2 ? age : 2+(age-2)^0.70 (packs flatten after year 2–3)
@@ -25,9 +27,11 @@
 - Live: FX via open.er-api (dual RBI/market benchmarks + staleness label);
   live ambient nudges Tpack ±1.75C max (IMD normals stay the anchor).
 - Warranty triggers: Tata Lifetime 15-yr 70% (restore ≥80%; Punch/Tiago Oct-2025 extension,
-  verify booklet year), Ola 70% (S1 X 2kWh: NO 8-yr cover at all), Ather 70%,
-  Leaf ≈66.25% bars, Bolt ≈60%. BNEF Dec-2025 $108/kWh. AVILOO Sep-2026 500k tests ≤13.5%.
-- EU Battery Passport mandatory 18-Feb-2027 (Reg 2023/1542, 71 data points, registry live 20-Jul-2026).
+  verify booklet year; pre-Oct-2025 stock 8yr/1.6L km), Ola 70% (S1 X 2kWh: NO 8-yr cover at all), Ather 70%,
+  Leaf ≈66.25% bars, Bolt ≈60%. BNEF Dec-2025 SNAPSHOT $108/kWh (2026F ≈$105, next survey Dec-2026). AVILOO Sep-2026 500k tests ≤13.5%.
+- EU Battery Passport mandatory 18-Feb-2027 (Reg 2023/1542, 71 data points with mandatory/deferred flags, registry live 20-Jul-2026). Pre-passport credential only (BATTCERTv3/DPPpre + SOCE + access tiers) — NOT an Art.77 passport.
+- California MY2026+: SoH within 5pp high (13 CCR 1962.5), dash display, warranty SoH<70% 8yr/100k mi; DMV used-EV disclosure Jan 2027. Tool band (±1.8–3.7) sits inside the 5pp ceiling.
+- India: CPA 2019 District Commission → e-daakhil https://edaakhil.nic.in/ (helpline 1915), step-7 filing path in claim letter.
 - Validation: 8 AVILOO models × 50k/150k km — mean |residual| 1.5 pts @50k, 1.8 @150k.
   Worst misses published: Ioniq 5 −4.1 @150k, Zoe +3.5 @50k. Re-run: node tools/backtest.js.
 - Supporting evidence only. Always demand OEM BMS SoH in writing. Not legal advice.
@@ -39,13 +43,20 @@
 - Second-life valuator: https://batteryforensics.in/second-life-value/
 - Resale cert: https://batteryforensics.in/used-ev-resale-cert/
 - SoH method guide: https://batteryforensics.in/soh-calculator/
-- EU DPP guide: https://batteryforensics.in/eu-battery-passport-qr/
+- EU DPP guide (71-row Map v2): https://batteryforensics.in/eu-battery-passport-qr/
 - US hub: https://batteryforensics.in/us/
+- CARB MY2026 standard: https://batteryforensics.in/us/carb-soh-standard/
+- Real-World SoH Index: https://batteryforensics.in/soh-index/
+- Author: https://batteryforensics.in/author.html
+- Corrections (7-day SLA): https://batteryforensics.in/corrections.html
+- Privacy / Terms / Security: https://batteryforensics.in/privacy.html https://batteryforensics.in/terms.html https://batteryforensics.in/security.html
+- Demo video chapters: https://batteryforensics.in/demo-chapters.html
 - Methodology & verification: https://batteryforensics.in/methodology.html
 - Warranty rules (one page per modelId, 40 total): https://batteryforensics.in/warranty/<modelId>/
   e.g. /warranty/tata-nexon45/ /warranty/ola-s1pro-g2/ /warranty/leaf40/ /warranty/tesla-my/
-- Sitemap: https://batteryforensics.in/sitemap.xml (47 URLs, all resolve)
+- Sitemap: https://batteryforensics.in/sitemap.xml (54 URLs, all resolve)
+- API: https://batteryforensics.in/api/openapi.json · Signing key: https://batteryforensics.in/.well-known/bijlibureau-key.json
 
 ## Full spec
-- See llms-full.txt (same folder) for chemistry table + warranty rulebook + DPP map + validation rows.
-- Verify: methodology page JSON-LD + in-app Evidence Pack PDF (SHA-256). Not legal advice.
+- See llms-full.txt (same folder) for chemistry table + warranty rulebook + DPP71 + CARB + validation rows.
+- Verify: methodology page JSON-LD + in-app evidence PDF (SHA-256, optional Ed25519). Not legal advice.

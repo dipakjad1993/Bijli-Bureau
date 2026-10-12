@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security — BijliBureau (zero-dep, CSP, signed evidence)</title>
+<meta name="description" content="BijliBureau security: zero npm runtime deps (SBOM), CSP + Trusted Types, SRI on CDN, Referrer + Permissions policies, HSTS on prod, optional Ed25519 evidence signatures with on-domain key transparency.">
+<link rel="canonical" href="https://batteryforensics.in/security.html">
+<meta name="robots" content="index, follow">
+<link rel="stylesheet" href="css/styles.css?v=16">
+</head>
+<body>
+<div class="topbar"><div class="wrap"><div class="brand"><span class="bolt">⚡</span> BIJLIBUREAU <span class="sub">Security</span></div><div class="topstats"><a href="/" style="color:#a9f5bd">← Free forensic tool</a></div></div></div>
+<main><div class="panel active" style="display:block"><div class="card">
+<p class="step-eyebrow">SECURITY · ZERO-DEP CORE · UPDATED 2026-10-12</p>
+<h1>Security: small surface, hashed evidence, signed when it matters</h1>
+<table class="kv">
+<tr><td>Supply chain</td><td>Core engine (database.js + forensics.js + app.js) has <b>zero npm runtime dependencies</b> — SBOM in <code>SBOM.json</code>. Heavy libs (Tesseract OCR, Chart.js, jsPDF, QRCode, web-vitals) lazy-load on demand with SRI pins (see index.html integrity notes) and never block first paint.</td></tr>
+<tr><td>Headers (prod)</td><td>CSP (default self; scripts self + pinned CDNs; connect self + open.er-api + open-meteo + GA when configured), Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy (camera self only), HSTS on batteryforensics.in. Meta fallbacks ship in index.html for static hosts.</td></tr>
+<tr><td>Evidence integrity</td><td>Every run: SHA-256 over the cert payload + DPPpre JSON, printed in-app + PDF + QR page. Optional detached signature: Ed25519 (CLI, tools/generate-key.js) or ECDSA-P256 (WebCrypto fallback) — public key at <code>/.well-known/bijlibureau-key.json</code> + transparency-log entry. Verify: <code>node tools/verify-signature.js &lt;payload&gt; &lt;sig-b64&gt;</code>. Until a key is configured the UI honestly says "timestamped + SHA-256 hashed" — never "signed".</td></tr>
+<tr><td>Vault</td><td>IndexedDB origin-private; AES-GCM passphrase opt-in for dealers. No passwords server-side (magic-link SSO-lite for fleets — see tools/dealer-auth.js).</td></tr>
+<tr><td>Report a vulnerability</td><td>support@batteryforensics.in — 7-day triage SLA. Do not include VINs/photos of other people.</td></tr>
+</table>
+<p class="hint"><a href="/">← Run the free forensic</a> · <a href="/.well-known/bijlibureau-key.json">Signing key</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
+</div></div></main>
+<footer>By <a href="author.html">BijliBureau</a> · support@batteryforensics.in · Dataset 2026.16-enterprise.</footer>
+</body>
+</html>
