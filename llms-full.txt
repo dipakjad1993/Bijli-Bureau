@@ -79,7 +79,7 @@
 - BNEF Dec-2025: pack $108/kWh (BEV $99, ESS $70, LFP $81, NMC $128; China $84, NA $121, EU $131)
 - 2nd-life routes: home $88/kWh, fleet $58, recycle $26, margin 0.72
 - FX: market snapshot ₹96.96 (2026-10-12), RBI ref ₹88.5; live via open.er-api
-- AVILOO Sep-2026: 5,00,000+ tests, spread ≤13.5%
+- AVILOO Sep-2026: 500,000+ tests, spread ≤13.5%
 
 ## Validation residuals (model vs AVILOO medians, Berlin, 20% DC, 70% SoC)
 - vw-id4: @50k model 94.5% vs aviloo 95.3% (r=-0.8); @150k model 88.9% vs aviloo 90.6% (r=-1.7)

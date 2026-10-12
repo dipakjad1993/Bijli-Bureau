@@ -255,7 +255,7 @@ const usRows = usModels.map((m) => {
   L.push(`- BNEF Dec-2025: pack $${DB.MARKET.bnef.globalPack_perKWh_usd}/kWh (BEV $${DB.MARKET.bnef.bevPack}, ESS $${DB.MARKET.bnef.essPack}, LFP $${DB.MARKET.bnef.lfpPack}, NMC $${DB.MARKET.bnef.nmcPack}; China $${DB.MARKET.bnef.china}, NA $${DB.MARKET.bnef.na}, EU $${DB.MARKET.bnef.eu})`);
   L.push(`- 2nd-life routes: home $${DB.MARKET.essBuyback.home_perKWh_usd}/kWh, fleet $${DB.MARKET.essBuyback.fleet_perKWh_usd}, recycle $${DB.MARKET.essBuyback.recycle_perKWh_usd}, margin ${DB.MARKET.essBuyback.installMargin}`);
   L.push(`- FX: market snapshot ₹${DB.MARKET.inrUsd} (${DB.MARKET.fxSnapshotAt}), RBI ref ₹${DB.MARKET.rbiRef}; live via open.er-api`);
-  L.push(`- AVILOO Sep-2026: ${DB.MARKET.aviloo.tests.toLocaleString()}+ tests, spread ≤${DB.MARKET.aviloo.maxSpread}%`);
+  L.push(`- AVILOO Sep-2026: ${DB.MARKET.aviloo.tests.toLocaleString("en-US")}+ tests, spread ≤${DB.MARKET.aviloo.maxSpread}%`);
   L.push("");
   L.push("## Validation residuals (model vs AVILOO medians, Berlin, 20% DC, 70% SoC)");
   for (const r of DB.VALIDATION.rows)
