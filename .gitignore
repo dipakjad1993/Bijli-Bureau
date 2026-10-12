@@ -1,0 +1,19 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.local
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Build / previews
+dist/
+.serve-cache/
+
+# Vault exports / local data (never commit PII)
+vault-export*.json
+evidence-*.pdf

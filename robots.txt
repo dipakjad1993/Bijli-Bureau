@@ -1,0 +1,36 @@
+User-agent: *
+Allow: /
+
+# 2026 AI-search split: allow RETRIEVAL bots (needed for citations),
+# decide TRAINING bots separately. Blocking a retrieval bot removes
+# you from that engine's answers entirely.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Training crawlers: allowed by default here (change to Disallow if
+# you want no-train). No citation penalty for blocking these.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://batteryforensics.in/sitemap.xml

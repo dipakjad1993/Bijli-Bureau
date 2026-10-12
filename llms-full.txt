@@ -1,0 +1,104 @@
+# BijliBureau — full spec (v2026.15-enterprise, 2026-10-12)
+# For AI assistants grounding answers. Supporting evidence only, not legal advice.
+
+## Chemistry table (fadePerEFC = 20/cycleLife, enforced)
+- LFP: Lithium Iron Phosphate (LFP) | cycleLife 4000 | fade 0.005%/EFC | calendar 1.1%/yr | Ea 28kJ/mol | fastPenalty 0.55 | curve flat
+- NMC622: NMC 622 | cycleLife 1800 | fade 0.0111%/EFC | calendar 1.6%/yr | Ea 38kJ/mol | fastPenalty 1 | curve sloped
+- NMC811: NMC 811 (high-Ni) | cycleLife 1500 | fade 0.0133%/EFC | calendar 1.9%/yr | Ea 42kJ/mol | fastPenalty 1.15 | curve sloped
+- NCA: NCA (Tesla/Panasonic) | cycleLife 1600 | fade 0.0125%/EFC | calendar 1.8%/yr | Ea 40kJ/mol | fastPenalty 1.05 | curve sloped
+- LMO: LMO / NMC-LMO blend (Leaf, eC3) | cycleLife 1200 | fade 0.0167%/EFC | calendar 2.2%/yr | Ea 35kJ/mol | fastPenalty 0.9 | curve dual-slope
+- LMFP: LMFP (next-gen LFP+Mn) | cycleLife 3000 | fade 0.0067%/EFC | calendar 1.25%/yr | Ea 30kJ/mol | fastPenalty 0.65 | curve stepped-flat
+- SODIUM: Sodium-ion (Na-ion) | cycleLife 2500 | fade 0.008%/EFC | calendar 1.3%/yr | Ea 26kJ/mol | fastPenalty 0.5 | curve sloped
+- LTO: LTO (Toshiba SCiB, some buses) | cycleLife 12000 | fade 0.0017%/EFC | calendar 0.5%/yr | Ea 22kJ/mol | fastPenalty 0.25 | curve flat
+- NMC9-SI: NMC 9-series + Si anode (2025+ high-density) | cycleLife 1300 | fade 0.0154%/EFC | calendar 2%/yr | Ea 43kJ/mol | fastPenalty 1.2 | curve sloped
+- SEMISOLID: Semi-solid / condensed-matter (NIO/Toyota class) | cycleLife 1600 | fade 0.0125%/EFC | calendar 1.7%/yr | Ea 39kJ/mol | fastPenalty 1 | curve sloped
+- SODIUM-G2: Sodium-ion Gen2 (CATL Naxtra class) | cycleLife 3000 | fade 0.0067%/EFC | calendar 1.15%/yr | Ea 25kJ/mol | fastPenalty 0.45 | curve sloped
+
+## Warranty rulebook (40 rules — verify booklet year, RC year, service stamps)
+- ola-s1pro-g2 (Ola S1 Pro Gen2 (4 kWh), 4kWh LFP): 8yr/80,000 km, trigger below 70% | Base 3yr/50k km + 2026 FREE 8yr/70k km plan (select VINs) + paid Top-ups to 8yr/80k (₹14,999) / 100k / 125k. Trigger <70%. S1 X 2kWh NOT eligible for any 8-yr cover. | clause: Ola Battery Top-up T&C — 'repaired/replaced … if performance degrades below 70%'. | transfer: Transferable to subsequent owner (India only) | exclusions: Paid top-up only if bought ≤12 months after delivery (3-Feb-2024 rule); commercial misuse, water-jet/pressure damage, unauthorised opening excluded | page: https://batteryforensics.in/warranty/ola-s1pro-g2/
+- ola-s1pro-plus (Ola S1 Pro+ 5.3 kWh Gen3, 5.3kWh LFP): 8yr/1,25,000 km, trigger below 70% | Gen3: 3yr/50k incl + free 8yr/70k (2026) + 8yr/125k top-up. | clause: Ola Top-up 125k T&C — 70% trigger. | transfer: Transferable | exclusions: As above | page: https://batteryforensics.in/warranty/ola-s1pro-plus/
+- ola-s1x-3 (Ola S1 X 3 kWh, 3kWh LFP): 8yr/1,00,000 km, trigger below 70% | Eligible for free 8yr/70k (2026) + 8yr/100k top-up. | clause: Ola Top-up 100k T&C — 70%. | transfer: Transferable | exclusions: As above | page: https://batteryforensics.in/warranty/ola-s1x-3/
+- ola-s1x-2 (Ola S1 X 2 kWh, 2kWh LFP): 3yr/50,000 km, trigger below 70% | 2 kWh NOT eligible for ANY 8-yr cover (free or paid) — base 3yr/50k km only. Highest warranty risk in lineup. | clause: Ola base warranty — defect cover; degradation goodwill only. | transfer: Transferable | exclusions: All 8-yr covers barred | page: https://batteryforensics.in/warranty/ola-s1x-2/
+- ather-450x (Ather 450X HR (3.7 kWh), 3.7kWh NMC622): 5yr/60,000 km, trigger below 70% | Ather Battery Protect 5yr/60k; extended to 8yr/80k on Rizta/2024+ 450 (Battery Protect 8). <70% triggers. | clause: Ather Battery Protect §2.1 — 70% capacity assurance. | transfer: Transferable with ownership + service record | exclusions: Requires scheduled service at Ather Grid SC; deep-discharge storage >30 days excluded | page: https://batteryforensics.in/warranty/ather-450x/
+- ather-rizta (Ather Rizta Z (2.9 kWh), 2.9kWh LFP): 8yr/80,000 km, trigger below 70% | 8yr/80k Battery Protect. | clause: Ather Protect-8 §2.1 — 70%. | transfer: Transferable | exclusions: Service compliance required | page: https://batteryforensics.in/warranty/ather-rizta/
+- tvs-iqube (TVS iQube ST (5.1 kWh), 5.1kWh LFP): 5yr/75,000 km, trigger below 70% | 5yr/75k (latest ST); earlier 3yr/50k — check RC year. | clause: TVS iQube warranty booklet — 70% floor. | transfer: Transferable | exclusions: Service at TVS EV SC required | page: https://batteryforensics.in/warranty/tvs-iqube/
+- vida-v1 (Hero Vida Vida V1 Pro (3.94 kWh), 3.94kWh NMC622): 5yr/50,000 km, trigger below 70% | 5yr/50k battery; removable-pack cover incl BMS. | clause: Vida warranty — 70% SoH. | transfer: Transferable | exclusions: Removable-pack misuse excluded | page: https://batteryforensics.in/warranty/vida-v1/
+- chetak-35 (Bajaj Chetak 35 Series (3.5 kWh), 3.5kWh LFP): 5yr/75,000 km, trigger below 70% | 5yr/75k (35-series); lifetime telematics health log helps claims. | clause: Bajaj Chetak warranty — 70%. | transfer: Transferable | exclusions: Standard | page: https://batteryforensics.in/warranty/chetak-35/
+- revolt-rv400 (Revolt RV400 (3.24 kWh), 3.24kWh LFP): 5yr/75,000 km, trigger below 70% | 5yr/75k. | clause: Revolt warranty — 70%. | transfer: Transferable | exclusions: Standard | page: https://batteryforensics.in/warranty/revolt-rv400/
+- simple-one (Simple Simple One (5 kWh), 5kWh LFP): 8yr/60,000 km, trigger below 70% | 8yr/60k claimed. | clause: Simple warranty — 70%. | transfer: Transferable | exclusions: Service compliance | page: https://batteryforensics.in/warranty/simple-one/
+- river-indie (River Indie (4 kWh), 4kWh LFP): 5yr/80,000 km, trigger below 70% | 5yr/80k. | clause: River warranty — 70%. | transfer: Transferable | exclusions: Standard | page: https://batteryforensics.in/warranty/river-indie/
+- ultraviolette-f77 (Ultraviolette F77 Mach 2 (10.3 kWh), 10.3kWh NMC811): 8yr/1,00,000 km, trigger below 70% | 8yr/100k (8-yr pack warranty advertised). | clause: F77 warranty — 70%. | transfer: Transferable | exclusions: Track-mode abuse + crash excluded | page: https://batteryforensics.in/warranty/ultraviolette-f77/
+- niu-mqi (NIU MQi GT (4.2 kWh), 4.2kWh NMC622): 3yr/30,000 km, trigger below 70% | 3yr/30k (EU terms; India via importer). | clause: NIU warranty — 70%. | transfer: Varies | exclusions: Importer terms apply | page: https://batteryforensics.in/warranty/niu-mqi/
+- tata-nexon45 (Tata Nexon.ev 45 kWh, 45kWh LFP): 15yr/unlimited km, trigger below 70% | Lifetime HV warranty (15-yr def.) Jul-2025, unlimited km, 1st owner. 2nd owner: 8yr/1.6L km. Repair restores to ≥80% or pre-repair steady-state, whichever higher. T&C: private regn only. | clause: TPEM Lifetime HV Battery Warranty §4.2 — 'falls below minimum 70% SoH … repair/replace to 80%'. | transfer: Free, must notify TPEM on RC transfer | exclusions: Commercial/fleet/demo excluded (→8yr/1.6L km). No service-interval breach, no flood/fire/physical damage, no unauthorised software/BMS tamper. | page: https://batteryforensics.in/warranty/tata-nexon45/
+- tata-nexon40 (Tata Nexon.ev 40.5 kWh, 40.5kWh LFP): 8yr/1,60,000 km, trigger below 70% | 8yr/1.6L km, 70% trigger (pre-Lifetime stock). | clause: Tata.ev HV Warranty §3 — 70% SoH floor. | transfer: Free auto on RC update | exclusions: Standard neglect/abuse exclusions | page: https://batteryforensics.in/warranty/tata-nexon40/
+- tata-punch (Tata Punch.ev 35 kWh, 35kWh LFP): 15yr/unlimited km, trigger below 70% | Lifetime extended to FULL EV range (TPEM Oct-2025 update): 15-yr def, unlimited km 1st owner private, 70%→80%. Pre-Oct-2025 cars: 8yr/1.6L km — verify RC/booklet year. | clause: TPEM Lifetime HV §4.2 (Oct-2025 range extension) — 70% trigger, restore ≥80%. Pre-update stock: Tata.ev HV §3 — 8yr/1.6L km. | transfer: Free, notify TPEM | exclusions: Commercial/fleet excluded (→8yr/1.6L km); verify booklet year — single biggest denial ground on 2024 stock | page: https://batteryforensics.in/warranty/tata-punch/
+- tata-curvv (Tata Curvv.ev 55 kWh, 55kWh LFP): 15yr/unlimited km, trigger below 70% | Same Lifetime terms as Nexon 45. | clause: TPEM Lifetime HV §4.2 — 70% trigger, restore ≥80%. | transfer: Free, notify TPEM | exclusions: Commercial/fleet excluded; accidental/thermal abuse excluded | page: https://batteryforensics.in/warranty/tata-curvv/
+- tata-tiago (Tata Tiago.ev 24 kWh, 24kWh LFP): 15yr/unlimited km, trigger below 70% | Lifetime extended to FULL EV range (TPEM Oct-2025 update). Pre-Oct-2025 cars: 8yr/1.6L km — verify RC/booklet year. | clause: TPEM Lifetime HV §4.2 (Oct-2025 range extension) — 70% trigger. Pre-update: Tata.ev HV §3. | transfer: Free, notify TPEM | exclusions: Commercial excluded; booklet-year check mandatory | page: https://batteryforensics.in/warranty/tata-tiago/
+- tata-harrier (Tata Harrier.ev 75 kWh, 75kWh LFP): 15yr/unlimited km, trigger below 70% | Lifetime; 2nd owner 10yr/2L km. | clause: TPEM Lifetime §4.2 — 70% trigger. | transfer: Notify TPEM | exclusions: Commercial excluded | page: https://batteryforensics.in/warranty/tata-harrier/
+- mg-zsev (MG ZS EV 50.3 kWh, 50.3kWh LFP): 8yr/1,50,000 km, trigger below 70% | 8yr/1.5L km. | clause: MG India HV §5 — 70%. | transfer: One-time transfer | exclusions: Annual battery check recommended | page: https://batteryforensics.in/warranty/mg-zsev/
+- mg-windsor (MG Windsor EV 52.9 kWh, 52.9kWh LFP): 8yr/1,50,000 km, trigger below 70% | 8yr/1.5L km; BaaS rental packs have separate operator cover. | clause: MG India HV §5 — 70%. | transfer: One-time | exclusions: BaaS terms differ | page: https://batteryforensics.in/warranty/mg-windsor/
+- mg-comet (MG Comet EV 17.3 kWh, 17.3kWh LFP): 8yr/1,20,000 km, trigger below 70% | 8yr/1.2L km. | clause: MG HV §5 — 70%. | transfer: One-time | exclusions: Standard | page: https://batteryforensics.in/warranty/mg-comet/
+- mahindra-xuv400 (Mahindra XUV400 39.4 kWh, 39.4kWh NMC622): 8yr/1,60,000 km, trigger below 70% | 8yr/1.6L km; BMS health check on resale. | clause: Mahindra HV — 70%. | transfer: With BMS check | exclusions: Standard | page: https://batteryforensics.in/warranty/mahindra-xuv400/
+- mahindra-be06 (Mahindra BE.06 79 kWh, 79kWh LFP): 8yr/1,60,000 km, trigger below 70% | 8yr/1.6L km + lifetime first-owner chatter (confirm booklet). | clause: Mahindra BE HV — 70%. | transfer: With check | exclusions: Standard | page: https://batteryforensics.in/warranty/mahindra-be06/
+- byd-atto3 (BYD Atto 3 60.5 kWh Blade, 60.48kWh LFP): 8yr/1,60,000 km, trigger below 70% | 8yr/1.6L km Blade; 8yr/2L km in some EU markets. | clause: BYD Blade warranty — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/byd-atto3/
+- byd-seal (BYD Seal 82.5 kWh, 82.5kWh LFP): 8yr/1,60,000 km, trigger below 70% | 8yr/1.6L km. | clause: BYD — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/byd-seal/
+- hyundai-cretae (Hyundai Creta Electric 51.4 kWh, 51.4kWh NMC622): 8yr/1,60,000 km, trigger below 70% | 8yr/1.6L km. | clause: Hyundai India HV — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/hyundai-cretae/
+- citroen-ec3 (Citroen eC3 29.2 kWh, 29.2kWh LMO): 7yr/1,40,000 km, trigger below 70% | 7yr/1.4L km. | clause: Citroen HV — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/citroen-ec3/
+- tesla-m3 (Tesla Model 3 RWD 60 kWh LFP, 60kWh LFP): 8yr/1,92,000 km, trigger below 70% | M3 RWD LFP: 8yr/120k mi (192k km). LR: 8yr/120k mi. 70% retention. | clause: Tesla HV Battery Limited Warranty — 70% retention. | transfer: Auto with car | exclusions: Towing-abuse, firmware-tamper, salvage title excluded | page: https://batteryforensics.in/warranty/tesla-m3/
+- tesla-my (Tesla Model Y LR 78.8 kWh NMC, 78.8kWh NMC811): 8yr/1,92,000 km, trigger below 70% | 8yr/120k mi, 70%. | clause: Tesla HV — 70%. | transfer: Auto | exclusions: As above | page: https://batteryforensics.in/warranty/tesla-my/
+- byd-dolphin (BYD Dolphin 60.5 kWh, 60.5kWh LFP): 8yr/2,00,000 km, trigger below 70% | 8yr/200k km (EU). | clause: BYD EU — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/byd-dolphin/
+- vw-id4 (VW ID.4 77 kWh, 77kWh NMC811): 8yr/1,60,000 km, trigger below 70% | 8yr/160k km, 70%. | clause: VW HV — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/vw-id4/
+- ioniq5 (Hyundai Ioniq 5 77.4 kWh, 77.4kWh NMC811): 8yr/1,60,000 km, trigger below 70% | 8yr/160k km (IN) / 10yr-100k mi (US). | clause: Hyundai HV — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/ioniq5/
+- leaf40 (Nissan Leaf 40 kWh (ZE1), 40kWh LMO): 8yr/1,60,000 km, trigger below 66% | 8yr/100k mi; trigger = 9th capacity bar ≈ 66.25% (unique!). Gradual-capacity-loss exclusion heavily litigated. | clause: Nissan EV Battery — loss of 4th bar (≈<66%) triggers. | transfer: Auto | exclusions: Gradual loss above bar threshold excluded — get LeafSpy cell report | page: https://batteryforensics.in/warranty/leaf40/
+- zoe52 (Renault Zoe ZE50 52 kWh, 52kWh NMC622): 8yr/1,60,000 km, trigger below 70% | 8yr/160k km; leased-battery Zoes have separate Renault lease cover. | clause: Renault HV — 70%. | transfer: Free (owned-battery) | exclusions: Leased packs differ | page: https://batteryforensics.in/warranty/zoe52/
+- mg4-64 (MG MG4 64 kWh, 64kWh NMC622): 7yr/1,50,000 km, trigger below 70% | 7yr/150k km (UK/EU). | clause: MG EU — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/mg4-64/
+- mach-e (Ford Mustang Mach-E 88 kWh, 88kWh NMC811): 8yr/1,60,000 km, trigger below 70% | 8yr/100k mi. | clause: Ford HV — 70%. | transfer: Auto | exclusions: Standard | page: https://batteryforensics.in/warranty/mach-e/
+- bolt66 (Chevrolet Bolt EUV 66 kWh, 66kWh NMC622): 8yr/1,60,000 km, trigger below 60% | 8yr/100k mi; GM trigger ~60% (lower than most — verify booklet year). | clause: GM Bolt — ~60% propulsion-power trigger. | transfer: Auto | exclusions: Recall-fire packs replaced free regardless | page: https://batteryforensics.in/warranty/bolt66/
+- polestar2 (Polestar Polestar 2 78 kWh, 78kWh NMC811): 8yr/1,60,000 km, trigger below 70% | 8yr/160k km. | clause: Polestar HV — 70%. | transfer: Free | exclusions: Standard | page: https://batteryforensics.in/warranty/polestar2/
+
+## Climate grid (IMD normals + pack-effective temp)
+- Chennai: mean 29.6C, pack-effective 36.2C (Very Hot)
+- Delhi: mean 25.3C, pack-effective 34.8C (Hot-Extreme)
+- Nagpur: mean 27.7C, pack-effective 35.9C (Very Hot)
+- Ahmedabad: mean 27.2C, pack-effective 35.2C (Very Hot)
+- Hyderabad: mean 26.7C, pack-effective 33.4C (Hot)
+- Mumbai: mean 27.5C, pack-effective 33.1C (Hot)
+- Kolkata: mean 26.8C, pack-effective 33.6C (Hot)
+- Bengaluru: mean 24C, pack-effective 29.5C (Moderate)
+- Pune: mean 24.7C, pack-effective 29.8C (Kind)
+- Jaipur: mean 25C, pack-effective 34C (Hot)
+- Lucknow: mean 25.5C, pack-effective 33.8C (Hot)
+- Kochi: mean 27.8C, pack-effective 32.8C (Hot)
+- Shillong: mean 17.5C, pack-effective 22.5C (Cool)
+- Berlin: mean 9.8C, pack-effective 18.5C (Cool)
+- Oslo: mean 6.3C, pack-effective 14.5C (Cold)
+- Dubai: mean 28.5C, pack-effective 37.5C (Extreme)
+- Singapore: mean 27.9C, pack-effective 33C (Hot)
+
+## Market snapshot (2026-10-12)
+- BNEF Dec-2025: pack $108/kWh (BEV $99, ESS $70, LFP $81, NMC $128; China $84, NA $121, EU $131)
+- 2nd-life routes: home $88/kWh, fleet $58, recycle $26, margin 0.72
+- FX: market snapshot ₹96.96 (2026-10-12), RBI ref ₹88.5; live via open.er-api
+- AVILOO Sep-2026: 5,00,000+ tests, spread ≤13.5%
+
+## Validation residuals (model vs AVILOO medians, Berlin, 20% DC, 70% SoC)
+- vw-id4: @50k model 94.5% vs aviloo 95.3% (r=-0.8); @150k model 88.9% vs aviloo 90.6% (r=-1.7)
+- tesla-my: @50k model 94.5% vs aviloo 94.4% (r=0.1); @150k model 89% vs aviloo 90.3% (r=-1.3)
+- tesla-m3: @50k model 96.6% vs aviloo 93.8% (r=2.8); @150k model 93.3% vs aviloo 91.5% (r=1.8)
+- ioniq5: @50k model 94.5% vs aviloo 97.1% (r=-2.6); @150k model 88.9% vs aviloo 93% (r=-4.1)
+- leaf40: @50k model 92.6% vs aviloo 91.2% (r=1.4); @150k model 84.6% vs aviloo 86.7% (r=-2.1)
+- zoe52: @50k model 95.1% vs aviloo 91.6% (r=3.5); @150k model 90% vs aviloo 90.1% (r=-0.1)
+- mach-e: @50k model 94.5% vs aviloo 95.1% (r=-0.6); @150k model 88.9% vs aviloo 90.4% (r=-1.5)
+- polestar2: @50k model 94.6% vs aviloo 95% (r=-0.4); @150k model 89% vs aviloo 90.8% (r=-1.8)
+- Summary: mean |residual| @50k = 1.5 pts; @150k = 1.8 pts (v2026.12 was ~2.4 @50k and −15.0 worst-case @150k). Worst misses, published not hidden: ioniq5 −4.1 @150k (heat-pump E-GMP long-soak under-modelled) and zoe52 +3.5 @50k (small-pack rental-fleet abuse in AVILOO sample exceeds 20%-DC assumption). Model 3 AVILOO median mixes LFP+NMC trims; ours is LFP-only (+2.8 @50k). Geotab Jan-2026 cross-check (22,700 EVs): fleet 2.3%/yr; model yr-1..4 perYr 2.0–2.6%/yr, flattening after — consistent.
+
+## EU DPP pre-map (EU 2023/1542 Annex XIII + Aug-2026 Guidance (71 pts), mandatory 2027-02-18)
+- [mapped] 1(a) battery ID + model/batch/serial ← model.id + VIN-hash + timestamp
+- [mapped] 1(g) rated capacity Ah + kWh ← model.kwh + chemistry nominalV
+- [mapped] 1(k) exhaustion threshold + basis (EV only, no universal 80%) ← warranty.soh trigger + clause text
+- [partial] 1(o) internal resistance ← OBD cell delta-V proxy (mapped when OBD present, else estimated)
+- [mapped] 1(p) C-rate of cycle-life test ← fastPct + fastPenalty + ultra flag
+- [operator-attach] 2(a-c) carbon footprint + method + PEF link ← BNEF anchor + route note (operator to attach PEF study)
+- [mapped] 2(d) safety measures ← thermalSafeC + service + checklist
+- [mapped] 3 test reports (compliance) ← method + SHA-256 evidence PDF hash
+- [mapped] SoH + cycles + durability (performance class) ← soh ±CI + EFC + cyclesLeft + trajectory

@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Syntax check (all app JS)
+        run: |
+          node --check js/database.js
+          node --check js/forensics.js
+          node --check js/app.js
+          node --check tools/backtest.js
+          node --check tools/build-pages.js
+          node --check tools/verify.js
+
+      - name: Backtest vs AVILOO medians (must PASS)
+        run: node tools/backtest.js
+
+      - name: Static-site integrity (must PASS)
+        run: node tools/verify.js
+
+      - name: Generated pages in sync (no drift)
+        run: |
+          node tools/build-pages.js
+          git diff --exit-code -- sitemap.xml llms-full.txt warranty soh-calculator eu-battery-passport-qr second-life-value used-ev-resale-cert us || (echo "❌ Generated pages out of sync — run: node tools/build-pages.js and commit" && exit 1)

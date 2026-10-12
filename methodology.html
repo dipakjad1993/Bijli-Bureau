@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Methodology & Verification — BijliBureau v2026.15-enterprise</title>
+<meta name="description" content="Full SoH lab method (sublinear EFC + plateaued Arrhenius + driver-baseline CSV + honest uncertainty band), 40-rule warranty engine, AVILOO backtest residuals, live FX/climate pipeline, and Oct-2026 verification ledger.">
+<link rel="canonical" href="https://batteryforensics.in/methodology.html">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Methodology & Verification — BijliBureau v2026.15">
+<meta property="og:description" content="Every equation, every source, every residual. Backtested vs AVILOO 500k tests: mean error 1.5–1.8 pts, misses published.">
+<meta property="og:url" content="https://batteryforensics.in/methodology.html">
+<meta property="og:image" content="https://batteryforensics.in/og/hero-card.png">
+<link rel="alternate" hreflang="en-IN" href="https://batteryforensics.in/methodology.html">
+<link rel="alternate" hreflang="x-default" href="https://batteryforensics.in/methodology.html">
+<link rel="stylesheet" href="css/styles.css?v=15">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"BijliBureau Methodology & Verification v2026.15","author":{"@type":"Organization","name":"BijliBureau Lab","url":"https://batteryforensics.in/"},"datePublished":"2025-07-20","dateModified":"2026-10-12","about":["State of Health","Arrhenius calendar aging","Equivalent Full Cycles","EU Battery Passport"],"citation":["https://about.bnef.com/insights/clean-transport/lithium-ion-battery-pack-prices-fall-to-108-per-kilowatt-hour-despite-rising-metal-prices-bloombergnef","https://electrek.co/2026/09/03/evs-retain-battery-best-aviloo-largest-study","https://single-market-economy.ec.europa.eu/single-market/digital-product-passport/batteries_en"]}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="wrap"><div class="brand"><span class="bolt">⚡</span> BIJLIBUREAU <span class="sub">Methodology & Verification · v2026.15-enterprise</span></div><div class="topstats"><a href="index.html" style="color:#a9f5bd">← Back to forensic tool</a></div></div></div>
+<main>
+<div class="panel active" style="display:block">
+<div class="card">
+<p class="step-eyebrow">E-E-A-T · VERIFICATION LEDGER · UPDATED 2026-10-12 · v2026.15</p>
+<h1>Methodology & verification: how SoH, warranty, value and QR are computed</h1>
+<p class="hint">By <b>BijliBureau Lab</b> · Contact lab@example.com · Not legal advice. Always demand OEM BMS SoH in writing and verify your booklet year. Supporting evidence only. Reproduce everything: <code>node tools/backtest.js</code> (ships in repo).</p>
+
+<h3>1 · SoH Lab — odometer-anchored sublinear EFC + plateaued Arrhenius + C-rate + driver-baseline fusion + honest band</h3>
+<pre class="code">EFC = odo_km / certified_range_new_km (ODOMETER-ANCHORED; CSV never extrapolates EFC)
+cycleFade%  = EFC^0.85 × fadePerEFC(chemistry) × DoDstress × CrateStress
+  fadePerEFC = 20/cycleLife ENFORCED (LFP 4000→0.0050 · NMC622 1800→0.0111 · NMC811 1500→0.0133
+  NCA 1600→0.0125 · LMO 1200→0.0167 · LMFP 3000→0.0067 · Na-ion 2500→0.0080 · LTO 12000→0.0017
+  NMC9-Si 1300→0.0154 · Semi-solid 1600→0.0125 · Na-G2 3000→0.0067)
+  DoDstress   = 0.80 + depthAvg/250 (≈0.88 @20% … 1.20 @100%)
+  CrateStress = 1 + fastPct×fastPenalty×0.55 + ultra8C_flag×0.35
+calendarFade% = effAge × baseRate(chemistry) × Arrhenius(Tpack, Ea) × SoCstress
+  effAge = age≤2 ? age : 2+(age−2)^0.70  (packs flatten after year 2–3; linear compounding removed v2026.14)
+  Arrhenius = exp[(Ea/R)(1/298.15 − 1/Tpack)] · R=8.314 J/mol·K · Ea 22–43 kJ/mol by chemistry
+  Tpack = IMD pack-effective temp, nudged by LIVE ambient ±1.75°C max when online (IMD stays anchor)
+  SoCstress = 0.75 + 0.0125×(avgSoC−50), ×1.15 if parked &gt;80%, capped 1.7
+CSV health vs DRIVER BASELINE (median implied range of earliest full charges — NOT certified range),
+  recency decay exp(−staleDays/540) a year-old log keeps ~44% weight, and the UI says which baseline was used.
+Bayesian fuse: w_csv = min(0.40, rows/30 × days/365) × decay; dash-range w=0.15; OBD BMS w=min(0.80, 0.5+n/200)
+SoH_raw kept + SoH clamped 45–100 (display floor 45; band floor 40 — documented, consistent).
+90% UNCERTAINTY BAND (honest label, v2026.14): band = √(MC² + fieldFloor²), n=600
+  MC: odo ±2%, Tpack ±1.5°C, age ±15 DAYS (all really sampled) + CSV ±1.0% / OBD ±0.5% observation noise
+  fieldFloor per chemistry (AVILOO spread ladder): LFP 1.6 · NMC622 2.2 · NMC811 2.4 · NCA 2.2 · LMO 2.6
+    LMFP 1.8 · Na-ion 1.7 · LTO 1.2 · high-Ni 2.4 · semi-solid 2.3, × (1+age/24)
+  evidence caps: solid CSV ≤±3.0% · strong OBD ≤±1.8%
+  What this means: model-only LFP ≈±1.8% young → 12-yr NMC ≈±3.7%. The OLD "±3.5/2.8/1.5 marketing
+  tiers" are gone; the band now MOVES with evidence (verified: OBD-strong 1.8 &lt; model-only 2.8).
+OBD: cell delta-V rounded BEFORE compare (v2026.12 epsilon fix); &gt;150mV WARN, &gt;250mV CRITICAL; BMS fused second.
+Dashboard SoC-now is EVIDENCE CONTEXT (photo record + fingerprint flag), never a silent model lever.</pre>
+<p class="hint">Chemistry table: LFP 4000 cycles / 1.1%/yr / Ea 28kJ · NMC622 1800/1.6%/38kJ · NMC811 1500/1.9%/42kJ · NCA 1600/1.8%/40kJ · LMO 1200/2.2%/35kJ · LMFP 3000/1.25%/30kJ · Na-ion 2500/1.3%/26kJ · LTO 12000/0.5%/22kJ · NMC9-Si 1300/2.0%/43kJ · Semi-solid 1600/1.7%/39kJ · Na-G2 3000/1.15%/25kJ. Pack-effective temp = IMD mean + garage/charging soak (e.g. Chennai 29.6→36.2°C, Pune 24.7→29.8°C). Heat gap = pure SoC-amplified Arrhenius ratio vs Pune (≈1.38× @78% SoC LFP Chennai; max ≈1.9× @100% SoC high-Ea NMC; Dubai ≈2.0× — computed, §10).</p>
+
+<h3>2 · Warranty engine — 40 OEM rules with clause, transfer, exclusions, claim path</h3>
+<p class="hint">Defaults 70% trigger. Exceptions: Nissan Leaf 40 kWh ≈66.25% (loss of 4th capacity bar, bring LeafSpy printout), Chevrolet Bolt ≈60% (verify booklet year; recall-fire packs replaced regardless). Tata Lifetime (TPEM Jul-2025, extended to FULL EV range Oct-2025): 15-yr definition, unlimited km 1st owner private, 70% trigger → restore ≥80% or pre-repair steady-state whichever higher; 2nd owner 8yr/160,000 km (Nexon 45/Curvv) or 10yr/200,000 km (Harrier/Sierra); <b>pre-Oct-2025 Punch.ev/Tiago.ev stock is 8yr/1.6L km — verify RC/booklet year, the single biggest denial ground on 2024 stock</b>; commercial/fleet excluded. Ola: base 3yr/50k km + 2026 FREE 8yr/70k km plan (select VINs) + paid 8yr/80k–125k top-ups (paid top-up only if bought ≤12 months after delivery per 3-Feb-2024 rule), 70%; <b>S1 X 2 kWh barred from ALL 8-yr cover (free or paid) — base 3yr/50k only; the tool hard-blocks with a warning before compute.</b> Ather Battery Protect 5yr/60k → 8yr/80k on Rizta/2024+ 450. Verdicts: ELIGIBLE-FILE NOW (below trigger, time+km alive) / FILE-SOON (buffer ≤2.5%, band straddles trigger) / HEALTHY / EXPIRED. Denial-risk audit flags fast-heavy abuse, missing service stamps (#1 killer), commercial use, Leaf bars misquote, OBD module-defect strengthener. Evidence belongs to ONE vehicle: model change or demo load clears attached CSV/OBD (v2026.14); manual clear buttons on every input.</p>
+
+<h3>3 · Second-life + resale — BNEF-anchored, live-FX, refurb math shown</h3>
+<p class="hint">Second-life: usable kWh × home $88 / fleet $58 / recycle $26 per kWh × 0.72 install margin − refurb share ($320 2W from MARKET table / $900 4W × 0.35). Cap: new-cell record lows (LFP $81) cap reuse at 60–80% of new; market moves ~40% CAGR — re-verify quarterly, anchor date printed on every figure. Resale: age depreciation 13%/yr 2W, 11%/yr 4W × km factor × battery-share 42% health factor × grade multiplier (A+ 1.06 / A 1.03 / B+ 1.0 / B 0.96 / C 0.89 / D 0.78); certified +9% band; dealer bid 0.88× certified; doughnut parts rescaled to sum 100 under fusion (v2026.14). AVILOO 13.5% spread ⇒ illustrative up to ₹60k (Ola-class) / $5k (Model-3-class) swings — labelled illustrative, not promised. Dealer "+12% margin, ~22 days faster" is 2025 dealer self-reported data — directional, verify on your floor.</p>
+
+<h3>4 · Evidence, QR, vault, privacy</h3>
+<p class="hint">Evidence PDF (jsPDF, local): photos + OCR transcript + method + clause + trajectory ±band fan + QR payloads + SHA-256 + consent receipt + band composition (MC ±x + field floor ±y). Cert QR: BATTCERTv2 pipe payload + DPPpre JSON mapping EU 2023/1542 71-field subset (9 rows mapped/partial/operator-attach). Vault: IndexedDB local-only, save/export JSON — honestly labelled origin-private, NOT encrypted at rest unless dealer sets a passphrase (AES-GCM opt-in). Photos/CSV/OBD never leave browser (Tesseract.js lazy ~2MB on click). Opt-in anonymized EFC/SoH outbox (localStorage cap 200, revocable) → POSTs only when a telemetry endpoint is configured; otherwise it queues. DPDP/GDPR consent checkbox gates all of it.</p>
+
+<h3>5 · Live / real-time pipeline (offline-first, never breaks offline) + analytics honesty</h3>
+<p class="hint">BF_DB.applyLive(): FX USD→INR via open.er-api with DUAL benchmarks (market snapshot ₹96.96 @2026-10-12 + RBI ref ₹88.50) and a staleness % label whenever live is unreachable; ambient now via Open-Meteo for Chennai/Delhi/Pune/Mumbai (IMD normals fallback). <b>Live ambient now NUDGES Tpack in coreModel (±1.75°C cap) — real-time changes numbers, not just a sentence.</b> BNEF stays a dated snapshot (declared, never fake-live). Status surfaced in liveticker + Market Intel + second-life live line + share payload; offline-snapshot paints first (no waiting for fetch). Analytics: dataLayer events (forensic_run, bf_tab/photo/ocr/csv/obd/pdf/vault_save/live) ALWAYS collect locally; NOTHING leaves the device until the deployer sets BF_DB.ANALYTICS.ga4Id (loads gtag.js, anonymize_ip) and/or telemetryEndpoint (opt-in sendBeacon POST). Unconfigured = local-only BY DESIGN — the UI says so. Share links: 30-day expiry, minimal PII, file://-safe fallback URL.</p>
+
+<h3>6 · Verification ledger + published residuals (each with source URL in js/database.js SOURCES_DETAILED)</h3>
+<table class="kv">
+<tr><td>BNEF Dec-9-2025</td><td>$108/kWh global record low (−8%); BEV $99, ESS $70 (−45%), LFP $81, NMC $128; China $84 / NA $121 / EU $131. 2026F ≈$105. Verified 2025-12-09, high confidence. Correct URL path: /clean-transport/ (fixed v2026.14).</td></tr>
+<tr><td>AVILOO Sep-2/3-2026</td><td>500k+ FLASH Tests (1M+ total DB), 20 models @50k/100k/150k; Model Y 94.4%→90.3%, ID.4 95.3%→90.6%, Leaf 91.2%→86.7%; ≤13.5% intra-model spread; 16/20 ≥90% @150k. Verified 2026-09-03, high confidence. PDF + Electrek cited.</td></tr>
+<tr><td>TPEM Lifetime Jul-2025 + Oct-2025 extension</td><td>15-yr def, unlimited km 1st owner, 70%→80%; Oct-2025: extended to full EV range (Punch.ev/Tiago.ev). Pre-update stock 8yr/1.6L — booklet-year check mandatory.</td></tr>
+<tr><td>Ola 2024-26 + 2026 free plan</td><td>Base 3yr/50k km; FREE 8yr/70k (2026, select VINs); paid 8yr/80k–125k top-ups (≤12-mo rule); 70%; S1 X 2kWh excluded from ALL 8-yr cover. Verified 2026-03-01, medium-high.</td></tr>
+<tr><td>WoodMac H1-2026</td><td>ESS demand ≈ EV growth (AI datacenters; Redwood×Crusoe 20 MW/205 MWh second-life for compute). Verified 2026-06-30, medium.</td></tr>
+<tr><td>EU 2023/1542 + Guidance v2.0 Aug-15/21-2026</td><td>Registry live 20-Jul-2026, 71 data points, mandatory 18-Feb-2027 EV/LMT/industrial &gt;2kWh QR-linked. Verified 2026-08-21, high.</td></tr>
+<tr><td>IMD normals</td><td>City means + pack-effective temps. Verified 2024-01-01, medium-high. Live ambient nudges ±1.75°C max.</td></tr>
+<tr><td>Geotab Jan-2026</td><td>22,700 EVs, 21 models: 2.3%/yr average (up from 1.8% 2024), 3.0%/yr for &gt;100 kW DC-fast reliance, +0.4%/yr hot climates. Our yr-1..4 perYr 2.0–2.6%/yr, flattening after — consistent. Charging behaviour outranks climate as a lever — validates fastPct weighting.</td></tr>
+</table>
+<h3>Backtest residuals — model v2026.14 vs AVILOO medians (Berlin, 20% DC, 70% SoC)</h3>
+<table class="kv">
+<tr><th>Model</th><th>@50k model</th><th>@50k AVILOO</th><th>Δ</th><th>@150k model</th><th>@150k AVILOO</th><th>Δ</th></tr>
+<tr><td>ID.4</td><td>94.5%</td><td>95.3%</td><td>−0.8</td><td>88.9%</td><td>90.6%</td><td>−1.7</td></tr>
+<tr><td>Model Y</td><td>94.5%</td><td>94.4%</td><td>+0.1</td><td>89.0%</td><td>90.3%</td><td>−1.3</td></tr>
+<tr><td>Model 3 (LFP)</td><td>96.6%</td><td>93.8%</td><td>+2.8*</td><td>93.3%</td><td>91.5%</td><td>+1.8*</td></tr>
+<tr><td>Ioniq 5</td><td>94.5%</td><td>97.1%</td><td>−2.6</td><td>88.9%</td><td>93.0%</td><td>−4.1†</td></tr>
+<tr><td>Leaf 40</td><td>92.6%</td><td>91.2%</td><td>+1.4</td><td>84.6%</td><td>86.7%</td><td>−2.1</td></tr>
+<tr><td>Zoe ZE50</td><td>95.1%</td><td>91.6%</td><td>+3.5‡</td><td>90.0%</td><td>90.1%</td><td>−0.1</td></tr>
+<tr><td>Mach-E</td><td>94.5%</td><td>95.1%</td><td>−0.6</td><td>88.9%</td><td>90.4%</td><td>−1.5</td></tr>
+<tr><td>Polestar 2</td><td>94.6%</td><td>95.0%</td><td>−0.4</td><td>89.0%</td><td>90.8%</td><td>−1.8</td></tr>
+</table>
+<p class="hint">Mean |residual|: <b>1.5 pts @50k, 1.8 @150k</b> (v2026.12 was ~2.4 @50k with a −15.0 worst case @150k that produced a false FILE-NOW on the Leaf — closed: Leaf 150k now 84.6 vs 86.7, correct side of the 66.25% trigger). * Model 3 AVILOO median mixes LFP+NMC trims; ours is LFP-only. † Ioniq 5: heat-pump E-GMP long-soak under-modelled — flagged, not hidden. ‡ Zoe @50k: small-pack rental-fleet abuse in the AVILOO sample exceeds the 20%-DC protocol assumption. Same data in js/database.js VALIDATION + re-run harness tools/backtest.js (also asserts chemistry/fade consistency, headline/chart agreement, CI evidence-response).</p>
+
+<h3>7 · What changed in v2026.14 (enterprise audit → implementation, every finding mapped)</h3>
+<p class="hint">P0-1 yearsTo70 km/yr bug: run() now passes kmsPerYr; estimateYearsTo integrates the SAME yearly simulation as trajectory() (agreement by construction; harness asserts |Δ|≤1.5yr); NaN-proof. P0-2 CI mirage: band = √(MC²+floor²), n=600, age ±15d jitter REALLY sampled, per-chemistry field floors, evidence caps; marketing tiers deleted everywhere. P0-3 Leaf liability: fadePerEFC=20/cycleLife enforced (harness fails on drift), EFC^0.85 sublinear throughput, plateaued calendar; residuals published above. §5 live honesty: dual FX benchmarks + staleness %, live ambient nudges Tpack ±1.75°C, BNEF declared snapshot, GA4/telemetry transport exists but SHIPS UNCONFIGURED (local-only by design). P1: CSV driver-baseline + recency decay + bias disclosure; evidence reset on model change/demo + clear buttons; both "Example you asked" scaffolding strings deleted; BNEF URL clean-energy→clean-transport; rulebook refresh (Tata Oct-2025 extension, Ola 3yr/50k + free 8yr/70k); heat-gap claim corrected to ≈1.9× max / Dubai ≈2.0×. P2: CSV cells escaped; vault/analytics/telemetry honesty copy; version synced v2026.14 (JSON-LD dateModified auto-synced at runtime); f_socnow optional evidence-context (OCR still autofills); doughnut rescaled to 100; shareUrl file://-safe. SEO: production domain batteryforensics.in across canonical/OG/hreflang/JSON-LD/robots/sitemap; 47/47 sitemap URLs resolve (40 warranty + 4 pillars + US hub + methodology.html, all generated from the rulebook by tools/build-pages.js); og/hero-card.png ships (zero-dep renderer tools/og.js); llms-full.txt generated from the same DB objects; Organization/FAQ/Dataset sameAs dead-links removed; us/ hub exists so hreflang en-US resolves.</p>
+
+<h3>8 · Editorial policy & corrections <span id="editorial"></span></h3>
+<p class="hint">Authors: BijliBureau Lab (lab@example.com — replace with a monitored inbox at deploy). Method changes versioned (v2026.x) with changelog here. Corrections log: <span id="corrections">v2026.12 AVILOO rounding + OBD epsilon + sitemap dedup; v2026.13 alias-URL removal + llms.txt rewrite; v2026.14 audit remediation (CI honesty, AVILOO recalibration + published residuals, live-climate physics, rulebook refresh, domain + 47 resolving URLs, OG image, llms-full.txt); v2026.15 global rebrand → BijliBureau (collision-checked coined name) + ?v=15 cache pins.</span> Warranty terms vary by booklet year — always verify RC year + service stamps. Supporting evidence only, not legal advice. Contact for corrections: lab@example.com, 7-day fix SLA.</p>
+
+<h3>9 · Limitations (read before filing — the honest list)</h3>
+<p class="hint">Model-only SoH is an estimate, not a BMS readout — always demand OEM BMS SoH % + threshold in writing. AVILOO medians mix trims/use (Model 3 LFP+NMC; Zoe rental-fleet abuse) — residuals inherit that mix. OBD fusion needs ≥3 samples; single screenshots don't tighten the band. Climate uses city normals + bounded live nudge, not per-VIN garage logs. Ioniq-5-class long-soak heat-pump packs read ~4 pts optimistic at 150k (published). Prices use BNEF Dec-2025 snapshot + live FX; re-verify before settlement. Warranty terms vary by booklet year, owner serial, commercial flag, and purchase-date rules (Ola 12-mo top-up window) — verify RC year + service stamps. Analytics ships local-only until GA4/telemetry are configured. Supporting evidence only, not legal advice. India CPA 2019 / EU MVBER escalation notes are procedural info, not counsel.</p>
+
+<h3>10 · Heat-gap note (computed, not claimed)</h3>
+<p class="hint">hotGapFactor = Arr(city)/Arr(Pune) × (1+max(0,avgSoC−70)×0.0117). Chennai vs Pune: ≈1.38× @78% SoC LFP (the demo number), max ≈1.9× @100% SoC high-Ea NMC. Dubai vs Pune ≈2.0×. The old "~2.1×" line overstated by ~0.2 and is corrected everywhere. Shade-parking + 80% cap recovers ~40% of the gap.</p>
+
+<h3>11 · Geotab cross-check (Jan-2026, 22,700 EVs, 21 models)</h3>
+<p class="hint">Fleet 2.3%/yr (up from 1.8% in 2024) · fast-heavy (&gt;100 kW) 3.0%/yr · hot climates +0.4%/yr. Our model: yr-1..4 marginal 2.0–2.6%/yr at 20–30% DC, flattening after year 2–3 (plateau) — sits between Geotab early-life and AVILOO long-life medians, which is where a blended model should sit. Behaviour (fastPct) outranks climate as a lever in both datasets — the C-rate stress design decision is validated.</p>
+
+<h3 id="competition">12 · Competitive deep-dive (Oct-2026 — why the wedge is real, where it isn't)</h3>
+<table class="kv">
+<tr><th></th><th>This tool</th><th>Recurrent (US)</th><th>AVILOO (EU/US)</th><th>Geotab / telematics</th></tr>
+<tr><td>Price to owner</td><td>Free</td><td>Paid plans</td><td>~€300 dongle + lab</td><td>SaaS / hardware</td></tr>
+<tr><td>2W + 4W</td><td>Yes (India/SEA + global 4W)</td><td>4W-only</td><td>4W-only</td><td>Fleet 4W</td></tr>
+<tr><td>No dongle / no upload</td><td>Yes (photo + CSV/OBD, on-device)</td><td>No (telematics API)</td><td>No (dongle + lab)</td><td>No (hardware)</td></tr>
+<tr><td>Warranty clause verdict</td><td>40 rules, clause-cited letter</td><td>US-only, no clause engine</td><td>EU/US focus, cert only</td><td>None</td></tr>
+<tr><td>Courtroom PDF + hash</td><td>Yes (SHA-256, method printed)</td><td>No</td><td>Cert only</td><td>No</td></tr>
+<tr><td>DPP pre-map (71 fields)</td><td>9 rows mapped/partial/attach</td><td>No</td><td>Partial</td><td>No</td></tr>
+<tr><td>2nd-life $ route</td><td>Live FX, 3 routes</td><td>No</td><td>No</td><td>No</td></tr>
+<tr><td>Accuracy vs field data</td><td>Published residuals (1.5–1.8 mean)</td><td>Score, no published error</td><td>Is the measurement</td><td>Raw telemetry, no SoH claim</td></tr>
+<tr><td>Method transparency</td><td>Equations + open harness</td><td>Proprietary</td><td>Lab protocol (partial)</td><td>Vendor-varying</td></tr>
+</table>
+<p class="hint">The wedge nobody occupies: free, on-device, 2W+4W, India/SEA clause-level verdicts with a hashed PDF and SHA-256. The honest threat: AVILOO's pitch is "don't guess, measure" — our answer is published residuals against AVILOO's own dataset, refreshed every time they publish, plus the only tool that says its band composition out loud. Moat maintenance: quarterly recalibration (BNEF/FX/AVILOO), prompt-share tracking (below), programmatic model pages (shipped: 40 + 4 pillars + US hub), and the Real-World SoH Index telemetry flywheel once the endpoint is configured.</p>
+
+<h3>13 · Deployment checklist (for the deployer — do these before announcing)</h3>
+<p class="hint">1) DNS + host batteryforensics.in; canonical already points there — verify with a crawler. 2) Set BF_DB.ANALYTICS.ga4Id (e.g. G-XXXXXXX) to switch analytics from local-only to GA4; add GSC property + submit sitemap.xml (47 URLs). 3) Set BF_DB.ANALYTICS.telemetryEndpoint to activate the opt-in Real-World SoH Index POST (outbox already queues locally). 4) Replace lab@example.com with a monitored inbox (9 files reference it). 5) Weekly prompt-run across ChatGPT/Perplexity/Gemini/AI Mode ("Ola S1 Pro warranty trigger?", "Nexon EV lifetime clause?") — log citation share-of-voice; that is the 2026 KPI, not rank alone. 6) Quarterly: re-run tools/backtest.js against newest AVILOO/BNEF, update MARKET + VALIDATION + this ledger. 7) Rebuild pages after any rulebook edit: node tools/build-pages.js (regenerates 40 warranty + pillars + US hub + sitemap + llms-full.txt). 8) Regenerate OG card if branding changes: node tools/og.js.</p>
+
+<h3>14 · 2026 search reality (why citation, not rank, is the surface)</h3>
+<p class="hint">Ahrefs May-2026: AI Overviews erase ~58% of top-slot CTR (from 34.5% eight months earlier) · Q1-2026: 25.11% of queries trigger an AIO (6.49% mid-2024) · 60% of searches end zero-click (77% mobile) · cited-vs-uncited CTR inside AIO 2.1% vs 0.9% · citation overlap with organic top-10 collapsed 76% → 17–54% · question/comparison intent hits 86–95% AIO incidence — exactly our queries ("ola battery warranty", "nexon ev replacement cost"). Doctrine: entity clarity → crawlable HTML → extractable claims with dates/sources → citations. What ships: 47 resolving URLs, per-page FAQPage + TechArticle + BreadcrumbList JSON-LD, noscript + model index, honest llms.txt (which correctly states Google doesn't use it), retrieval-bot allowlist in robots.txt. Measure prompt-share weekly (§13.5).</p>
+
+<p class="hint"><a href="index.html">← Run the forensic</a> · <a href="sitemap.xml">Sitemap</a> · <a href="robots.txt">Robots</a> · Dataset v2026.15 · verified 2026-10-12 · <span id="license">Method + data: supporting-evidence use; warranty text is paraphrase — verify against your booklet. Corrections: lab@example.com (7-day SLA).</span></p>
+</div>
+</div>
+</main>
+<footer>BijliBureau Lab · lab@example.com · Dataset v2026.15 · BNEF/AVILOO/TPEM/Ola/EU-2023-1542/IMD/Geotab · Not legal advice.</footer>
+</body>
+</html>

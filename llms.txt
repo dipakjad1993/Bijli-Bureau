@@ -1,0 +1,51 @@
+# BijliBureau — Warranty Claim Assassin (v2026.15-enterprise)
+
+> Free on-device EV battery SoH lab: sublinear-EFC + plateaued Arrhenius aging,
+> 40 OEM warranty rules, second-life value, resale cert QR. 2W + 4W, India/SEA + global.
+> Backtested vs AVILOO Sep-2026 medians — residuals published, not hidden.
+> Canonical docs: https://batteryforensics.in/methodology.html
+
+## Note on AI search (Google 2026)
+- Google Search (incl. AI Overviews / AI Mode) does NOT use llms.txt.
+  Visibility there = crawlable HTML + indexation + CWV + E-E-A-T.
+- This file is for ChatGPT / Perplexity / Claude / developer tools
+  as a navigation aid. It is not a ranking lever.
+
+## Method summary, v2026.15 (for grounding — quote these, not older versions)
+- SoH = 100 - (EFC^0.85 * (20/cycleLife) * DoD * Crate + effAge * base * Arrhenius(Tpack,Ea) * SoC + abuse)
+- EFC = odo_km / certified_range_new_km (odometer-anchored; CSV never extrapolates EFC)
+- effAge plateaus: age<=2 ? age : 2+(age-2)^0.70 (packs flatten after year 2–3)
+- fadePerEFC is DERIVED as 20/cycleLife per chemistry — headline and physics cannot disagree
+- CSV health vs DRIVER baseline (earliest full charges), recency decay exp(-staleDays/540)
+- Bayesian fuse: w_csv<=0.40 (decayed); dash-range w=0.15; OBD BMS w=min(0.80, 0.5+n/200)
+- 90% UNCERTAINTY BAND (not a pure Monte Carlo CI): sqrt(MC^2 + chemistry field-floor^2),
+  MC n=600 (odo ±2%, T ±1.5C, age ±15d jitter — all really sampled),
+  floor per chemistry 1.2–2.6% growing 1+age/24 (AVILOO spread ladder).
+  Evidence caps: solid CSV ≤±3.0%, strong OBD ≤±1.8%.
+- Live: FX via open.er-api (dual RBI/market benchmarks + staleness label);
+  live ambient nudges Tpack ±1.75C max (IMD normals stay the anchor).
+- Warranty triggers: Tata Lifetime 15-yr 70% (restore ≥80%; Punch/Tiago Oct-2025 extension,
+  verify booklet year), Ola 70% (S1 X 2kWh: NO 8-yr cover at all), Ather 70%,
+  Leaf ≈66.25% bars, Bolt ≈60%. BNEF Dec-2025 $108/kWh. AVILOO Sep-2026 500k tests ≤13.5%.
+- EU Battery Passport mandatory 18-Feb-2027 (Reg 2023/1542, 71 data points, registry live 20-Jul-2026).
+- Validation: 8 AVILOO models × 50k/150k km — mean |residual| 1.5 pts @50k, 1.8 @150k.
+  Worst misses published: Ioniq 5 −4.1 @150k, Zoe +3.5 @50k. Re-run: node tools/backtest.js.
+- Supporting evidence only. Always demand OEM BMS SoH in writing. Not legal advice.
+
+## Key pages
+- Tool: https://batteryforensics.in/#intake
+- SoH Lab: https://batteryforensics.in/#soh
+- Warranty verdict: https://batteryforensics.in/#warranty
+- Second-life valuator: https://batteryforensics.in/second-life-value/
+- Resale cert: https://batteryforensics.in/used-ev-resale-cert/
+- SoH method guide: https://batteryforensics.in/soh-calculator/
+- EU DPP guide: https://batteryforensics.in/eu-battery-passport-qr/
+- US hub: https://batteryforensics.in/us/
+- Methodology & verification: https://batteryforensics.in/methodology.html
+- Warranty rules (one page per modelId, 40 total): https://batteryforensics.in/warranty/<modelId>/
+  e.g. /warranty/tata-nexon45/ /warranty/ola-s1pro-g2/ /warranty/leaf40/ /warranty/tesla-my/
+- Sitemap: https://batteryforensics.in/sitemap.xml (47 URLs, all resolve)
+
+## Full spec
+- See llms-full.txt (same folder) for chemistry table + warranty rulebook + DPP map + validation rows.
+- Verify: methodology page JSON-LD + in-app Evidence Pack PDF (SHA-256). Not legal advice.
