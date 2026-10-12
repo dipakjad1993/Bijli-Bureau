@@ -1,7 +1,7 @@
 /* BijliBureau — static programmatic page builder (ships in repo).
  * Run: node tools/build-pages.js
  * Single source of truth: js/database.js (MODELS + WARRANTIES + MARKET).
- * Emits: warranty/<modelId>/index.html (40) + 4 pillar pages + us/index.html,
+ * Emits: warranty/<modelId>/index.html (40) + 6 pillar pages (incl. CARB + SoH Index) + us/index.html,
  * and REWRITES sitemap.xml so every sitemap URL resolves (audit P0: 44/46 404s).
  * Warranty pages include a build-time worked SoH example computed with the REAL
  * engine (js/forensics.js) — no placeholder numbers. */
@@ -14,12 +14,25 @@ function load(f) { eval.call(global, fs.readFileSync(path.join(ROOT, f), "utf8")
 load("js/database.js");
 load("js/forensics.js");
 const DB = window.BF_DB, E = window.BF_Engine;
+// Deterministic builds (CI drift-gate fix): the SoH engine's 90% band uses
+// Monte Carlo sampling (n=600, Math.random), so unseeded rebuilds drift ±0.1
+// on band edges and the `git diff --exit-code` sync check flakes forever.
+// Override with a fixed-seed PRNG (mulberry32) BEFORE any workedExample runs —
+// the pages still use the REAL engine, just with a frozen sampling stream, so
+// local `node tools/build-pages.js` and CI produce byte-identical output.
+let _seed = 0xB1B7E4D;
+Math.random = function () {
+  _seed |= 0; _seed = (_seed + 0x6D2B79F5) | 0;
+  let z = Math.imul(_seed ^ (_seed >>> 15), 1 | _seed);
+  z = (z + Math.imul(z ^ (z >>> 7), 61 | z)) ^ z;
+  return ((z ^ (z >>> 14)) >>> 0) / 4294967296;
+};
 const SITE = "https://batteryforensics.in";
 const UPDATED = (()=>{ try{ const {execSync}=require("child_process");
   const d=execSync("git log -1 --format=%cs -- js/database.js",{cwd:ROOT,encoding:"utf8"}).trim();
   if(/^\d{4}-\d{2}-\d{2}$/.test(d)) return d; }catch(e){} return DB.MARKET.updated; })();
 const VER = DB.VERSION;
-const VSHORT = VER.split("-")[0]; // "2026.15" for user-facing model copy
+const VSHORT = VER.split("-")[0]; // "2026.16" for user-facing model copy
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const inr = (v) => "₹" + Math.round(v).toLocaleString("en-IN");
